@@ -76,6 +76,22 @@ class CourseTeacherCompare extends Component {
                             <Line type="monotone" dataKey="high_rate" stroke="#0f0" />
                         </LineChart>
                     </Col>
+                </Row>
+                <Row>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                        <p>波动性(标准差)</p>
+                        <LineChart width={600} height={300} data={this.state.data} syncId="anyId"
+                            margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                            <XAxis dataKey="name" />
+                            <YAxis label={{ value: '人数', angle: -90, position: 'insideLeft' }} />
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <Tooltip />
+                            <Legend />
+                            <Line type="monotone" dataKey="mean_std" stroke="#f00" />
+                            <Line type="monotone" dataKey="hang_std" stroke="#0f0" />
+                            <Line type="monotone" dataKey="high_std" stroke="#00f" />
+                        </LineChart>
+                    </Col>
                     <Col xs={24} sm={24} md={12} lg={12} xl={12}>
                         <p>老师带过的学生人数</p>
                         <LineChart width={600} height={300} data={this.state.data} syncId="anyId"

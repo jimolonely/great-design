@@ -4,6 +4,7 @@ from util.dto import Result
 
 from service.relation import *
 from util.data import load_pandas_df
+import numpy as np
 
 
 class Relation(Resource):
@@ -74,18 +75,18 @@ class CourseTeacherCompare(Resource):
             marks.append(mean_marks[k])
             tea_marks[k[0]] = marks
 
-        tea_final_mean_marks = self.cal_rate(tea_marks)
+        tea_final_mean_marks, mean_std = self.cal_rate(tea_marks)
 
         # 计算各个老师的挂科率
         fail_dict = df[df.mark < 60.0].groupby(['teacher', 'term_name']).agg({'course_code': 'count'}).to_dict()[
             'course_code']
         all_dict = tea_mean_mark.to_dict()['course_code']
-        hang_rate = self.cal_my_rate(fail_dict, all_dict)
+        hang_rate, hang_std = self.cal_my_rate(fail_dict, all_dict)
 
         # 计算高分率(>=85)
         high_dict = df[df.mark >= 85.0].groupby(['teacher', 'term_name']).agg({'course_code': 'count'}).to_dict()[
             'course_code']
-        high_rate = self.cal_my_rate(high_dict, all_dict)
+        high_rate, high_std = self.cal_my_rate(high_dict, all_dict)
 
         # 老师带过的学生数量
         tea_stu_count = df.groupby('teacher').agg({'mark': 'count'}).to_dict()['mark']
@@ -104,6 +105,9 @@ class CourseTeacherCompare(Resource):
             d['hang_rate'] = hang_rate.get(k, 0) * 100
             d['high_rate'] = high_rate.get(k, 0) * 100
             d['stu_num'] = int(tea_stu_count.get(k, 0))
+            d['hang_std'] = hang_std.get(k, 0.0)
+            d['high_std'] = high_std.get(k, 0.0)
+            d['mean_std'] = mean_std.get(k, 0.0)
             data.append(d)
         return Result(data)
 
@@ -135,7 +139,9 @@ class CourseTeacherCompare(Resource):
          '刘成龙': 0.13602814375388012}
         '''
         rate = {}
+        std = {}  # 标准差
         for name in dict_list.keys():
             hang_list = dict_list[name]
             rate[name] = sum(hang_list) / len(hang_list)
-        return rate
+            std[name] = np.std(hang_list)
+        return rate, std
