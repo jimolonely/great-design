@@ -2,7 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
 
-from api.course import Relation, Difficulty
+from api.course import Relation, Difficulty, CourseTeacherCompare
 from api.student import StuToTeacherAdviceWordCloud
 from api.teacher import TeacherCourseAdviceWordCloud, TeacherAllAdviceWordCloud
 
@@ -23,6 +23,7 @@ api.add_resource(Relation, '/course/relation/<course_code1>/<course_code2>')
 api.add_resource(TeacherCourseAdviceWordCloud, '/teacher/wc/<teacher_name>/<course_name>')
 api.add_resource(TeacherAllAdviceWordCloud, '/teacher/wc/<teacher_name>')
 api.add_resource(Difficulty, '/course/difficulty/<course_code>')
+api.add_resource(CourseTeacherCompare, '/course/teacher-compare/<course_code>')
 
 if __name__ == '__main__':
     app.run(debug=True, port=8082, host='0.0.0.0')

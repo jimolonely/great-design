@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,Label
+    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Label
 } from 'recharts';
 import { Button, Input, Row, Col } from 'antd';
 import * as net from "../utils/net";
@@ -39,7 +39,11 @@ class CourseDifficulty extends Component {
         return (
             <div>
                 <Input placeholder="输入课程代码" onChange={this.onChange} />
+                <br />
+                <br />
                 <Button type="primary" onClick={this.getData}>获取数据</Button>
+                <br />
+                <br />
                 <Row>
                     <Col xs={24} sm={24} md={12} lg={12} xl={12}>
                         <p>年度平均分</p>
@@ -47,7 +51,7 @@ class CourseDifficulty extends Component {
                             margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                             <XAxis dataKey="year">
                             </XAxis>
-                            <YAxis label={{ value: '平均分', angle: -90, position: 'insideLeft' }}/>
+                            <YAxis label={{ value: '平均分', angle: -90, position: 'insideLeft' }} />
                             <CartesianGrid strokeDasharray="3 3" />
                             <Tooltip />
                             <Legend />
