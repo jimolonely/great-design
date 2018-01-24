@@ -61,10 +61,10 @@ class TeaWC extends Component {
         return (
             <div>
                 <Row>
-                    <Col span={12}>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
                         <Input placeholder="输入老师姓名" onChange={this.onChangeName} />
                     </Col>
-                    <Col span={12}>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
                         <Input placeholder="输入课程名(非必填)" onChange={this.onChangeCourse} />
                     </Col>
                 </Row>
@@ -76,10 +76,10 @@ class TeaWC extends Component {
                 </Row>
                 <br />
                 <Row>
-                    <Col span={12}>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
                         <img src={this.state.bestStr} />
                     </Col>
-                    <Col span={12}>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
                         <img src={this.state.badStr} />
                     </Col>
                 </Row>

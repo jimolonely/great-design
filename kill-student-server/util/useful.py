@@ -10,7 +10,8 @@ def txt_to_word_cloud_imgstr(txt):
     :param txt:
     :return:
     '''
-    wd = WordCloud(font_path="/home/jimo/workspace/pycharm/kill-student-server/resource/SimHei.ttf", max_font_size=60, \
+    wd = WordCloud(font_path="/home/jimo/workspace/Git/great-design/kill-student-server/resource/SimHei.ttf",
+                   max_font_size=60, \
                    width=600, height=400).generate(txt)
     b = BytesIO()
     wd.to_image().save(b, "PNG")
