@@ -11,6 +11,13 @@ class Relation(Resource):
     '''两门课程的相关性'''
 
     def get(self, course_code1, course_code2):
+        # 如果相同直接返回1
+        if course_code2 == course_code1:
+            return Result(data={
+                'total': 0,
+                'prob': "%.2f" % 100,
+                'bg_prob': "%.2f" % 100
+            })
         return Result(data=similar_of_two_course(course_code1, course_code2))
 
 
