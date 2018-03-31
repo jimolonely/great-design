@@ -11,9 +11,10 @@ import Mark from './student/Mark';
 import StuWC from './student/StuWC';
 import TwoCourseRelation from './course/TwoCourseRelation'
 // import { CourseRelation } from "./course/CourseRelation";
-import ThreeDimScatterChart from "./course/CourseRelation";
+import CourseRelationShow from "./course/CourseRelationShow";
 import CourseDifficulty from "./course/CourseDifficulty";
 import CourseTeacherCompare from "./course/CourseTeacherCompare";
+import CourseRelationCompute from "./course/CourseRelationCompute";
 import Studenta from './student/Studenta';
 import TeaWC from "./teacher/TeaWC";
 
@@ -53,11 +54,12 @@ class RouteApp extends Component {
             </SubMenu>
             <SubMenu title={<span><Icon type="profile" />Course</span>}>
               <Menu.Item key="course-2"><Link to="/course/tworelation">2门课程相关性</Link></Menu.Item>
-              <Menu.Item key="course-all"><Link to="/course/relation">课程关联度可视化 </Link></Menu.Item>
+              <Menu.Item key="course-all"><Link to="/course/relation-show">课程相关性可视化 </Link></Menu.Item>
               <Menu.Item key="course-difficulty"><Link to="/course/difficulty">课程难度 </Link></Menu.Item>
               <Menu.Item key="course-compare"><Link to="/course/teacompare">课程不同老师对比 </Link></Menu.Item>
               <Menu.Item key="course-image"><Link to="/course">课程画像 </Link></Menu.Item>
               <Menu.Item key="course-rank"><Link to="/course">课程排行榜 </Link></Menu.Item>
+              <Menu.Item key="course-relation-compute"><Link to="/course/relation-compute">计算专业课程相关性 </Link></Menu.Item>
             </SubMenu>
             <SubMenu title={<span><Icon type="user" />Teacher</span>}>
               <Menu.Item key="tea-teachera"><Link to="/course/tworelation">老师画像</Link></Menu.Item>
@@ -69,9 +71,10 @@ class RouteApp extends Component {
             <Route exact path="/" component={App} />
             <Route exact path="/course" component={Course} />
             <Route exact path="/course/tworelation" component={TwoCourseRelation} />
-            <Route exact path="/course/relation" component={ThreeDimScatterChart} />
+            <Route exact path="/course/relation-show" component={CourseRelationShow} />
             <Route exact path="/course/difficulty" component={CourseDifficulty} />
             <Route exact path="/course/teacompare" component={CourseTeacherCompare} />
+            <Route exact path="/course/relation-compute" component={CourseRelationCompute} />
             <Route exact path="/mark" component={Mark} />
             <Route exact path="/stu/wc" component={StuWC} />
             <Route exact path="/stu/studenta" component={Studenta} />

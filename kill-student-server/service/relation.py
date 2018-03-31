@@ -88,8 +88,13 @@ def similar_of_two_course(course_code1, course_code2, speciality_code=None):
     }
 
 
-# 求差的分数线
 def bad_mark(mark_mean, dist):
+    '''
+    求差的分数线
+    :param mark_mean:
+    :param dist:
+    :return:
+    '''
     line = mark_mean - dist
     return line if line > 60 else 60.0
 
