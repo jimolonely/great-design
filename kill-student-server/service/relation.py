@@ -1,17 +1,30 @@
 from util.data import load_pandas_df
 
 
-def similar_of_two_course(course_code1, course_code2):
+def similar_of_two_course(course_code1, course_code2, speciality_code=None):
     '''
     计算2门课程的相似度
     :param course_code1:
     :param course_code2:
+    :param speciality_code:当为None时表示不考虑专业
     :return:
     '''
     sql = "select DISTINCT(m1.student_id),m1.course_code as code1,m2.course_code as code2,m1.course_name as name1,m2.course_name as name2,m1.pmark as mark1,m2.pmark as mark2, \
     m1.speciality_code from view_stu_course_mark m1 join view_stu_course_mark m2 on m1.student_id=m2.student_id \
-    where m1.course_code='%s' and m2.course_code='%s'" % (course_code1, course_code2)
+    where m1.course_code='%s' and m2.course_code='%s' " % (course_code1, course_code2)
+
+    if speciality_code is not None:
+        sql = sql + " and m1.speciality_code='" + speciality_code + "'"
+
     df = load_pandas_df(sql)
+
+    # 小于30个人没有参考价值
+    if len(df) < 30:
+        return {
+            'total': 0,
+            'prob': "%.2f" % 0.0,
+            'bg_prob': "%.2f" % 0.0
+        }
 
     # 求每门课成绩的平均值
     mark_mean1 = float(df.agg({'mark1': 'mean'}))
@@ -87,6 +100,3 @@ def good_mark(mark_mean):
     '''
     return mark_mean + (100 - mark_mean) / 2
 
-
-def filter_data():
-    pass
