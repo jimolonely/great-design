@@ -1,3 +1,5 @@
+import threading
+
 from util.data import load_pandas_df
 
 
@@ -105,3 +107,13 @@ def good_mark(mark_mean):
     '''
     return mark_mean + (100 - mark_mean) / 2
 
+
+class CalRelationThread(threading.Thread):
+    '''计算一次专业的线程'''
+
+    def __init__(self, name):
+        threading.Thread.__init__(self)
+        self.name = name
+
+    def run(self):
+        pass
