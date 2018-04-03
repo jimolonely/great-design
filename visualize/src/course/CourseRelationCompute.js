@@ -29,7 +29,7 @@ class CourseRelationCompute extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            isBegin: false
+            isRunning: false
         }
         this.refresh = this.refresh.bind(this);
         this.beginCompute = this.beginCompute.bind(this);
@@ -40,13 +40,31 @@ class CourseRelationCompute extends Component {
     }
 
     beginCompute() {
-
+        var run = false;
+        var btnRun = document.getElementById("btnRun");
+        if (this.state.isRunning) {
+            btnRun.innerHTML = "开启计算";
+            run = false;
+        } else {
+            btnRun.innerHTML = "停止计算";
+            run = true;
+        }
+        var t = this;
+        net.post('/course/relation-compute', {
+            speciality_codes: ['0501', '0901'],
+            run: run
+        }, function (re) {
+            t.setState({
+                isRunning: run
+            })
+            console.log(re.data)
+        });
     }
 
     render() {
         return (
             <div>
-                <Button type="primary" onClick={this.beginCompute}>开启计算</Button>&nbsp;
+                <Button type="primary" id="btnRun" onClick={this.beginCompute}>开启计算</Button>&nbsp;
                 <Button type="primary" onClick={this.refresh}>刷新状态</Button>
                 <hr />
                 <p>进度列表</p>

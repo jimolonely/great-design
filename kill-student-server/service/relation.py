@@ -3,6 +3,7 @@ import math
 import threading
 import time
 
+from util.config import TEMP_FILE_PATH
 from util.data import load_pandas_df
 
 
@@ -161,15 +162,19 @@ class CalSpecialityRelationThread(threading.Thread):
                 self.isFinished = True
                 self.stop()
 
-    def stop(self):
-        '''停止本次计算,保存结果,清理垃圾'''
-        self.isRun = False
+    def write_process(self):
         process = dict()
+        process['specialityCode'] = self.speciality_code
         process['beginIndex'] = self.beginIndex
         process['endIndex'] = self.endIndex
         process['isFinished'] = self.isFinished
         # 写入文件
         dump_obj(self.temp_file_dir + '_process.txt', process)
+
+    def stop(self):
+        '''停止本次计算,保存结果,清理垃圾'''
+        self.isRun = False
+        self.write_process()
         print('已停止')
 
     def get_course_code(self):
@@ -185,8 +190,7 @@ class CalSpecialityRelationThread(threading.Thread):
             df = load_pandas_df(sql)
             d_records = df.to_dict('records')
             records = []
-            #             n = len(d_records)
-            n = 12
+            n = len(d_records)
             for i in range(n - 1):
                 for j in range(i + 1, n):
                     t = (d_records[i], d_records[j])
@@ -247,6 +251,7 @@ class CalSpecialityRelationThread(threading.Thread):
                     batch_link.clear()
                     begin_time = end_time
                     self.beginIndex = i + 1
+                self.write_process()
 
     def add_one_node_record(self, nodeRecord, name, prob):
         if name in nodeRecord:
@@ -292,3 +297,25 @@ class CalSpecialityRelationThread(threading.Thread):
             node['symbolSize'] = v['edgeCount'] + v['probSum'] * 2
             nodes.append(node)
         return links, nodes
+
+
+class RunThread():
+    '''
+    因为直接在flask的Resource里保存线程,每次获得的都是不同的实例,所以有这个辅助类
+    '''
+    def __init__(self):
+        self.threads = dict()
+
+    def start(self, codes):
+        print("start")
+        for code in codes:
+            thread = CalSpecialityRelationThread(code, temp_file_dir=TEMP_FILE_PATH)
+            thread.start()
+            self.threads[code] = thread
+
+    def stop(self):
+        for thread in self.threads.values():
+            print(thread)
+            thread.stop()
+        self.threads.clear()
+        print("stop")

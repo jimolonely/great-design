@@ -1,10 +1,12 @@
-from flask_restful import Resource
+from flask_restful import Resource, request
 
 from util.dto import Result
 
 from service.relation import *
 from util.data import load_pandas_df
 import numpy as np
+
+from util.config import TEMP_FILE_PATH
 
 
 class Relation(Resource):
@@ -125,7 +127,7 @@ class CourseTeacherCompare(Resource):
         :param all_dict:
         :return:
         '''
-        temp_dict = {}
+        temp_dict = dict()
         for k in all_dict.keys():
             fail_cnt = part_dict.get(k, 0)
             hang_list = temp_dict.get(k[0], [])
@@ -145,13 +147,16 @@ class CourseTeacherCompare(Resource):
          '冯威': 0.17307692307692307,
          '刘成龙': 0.13602814375388012}
         '''
-        rate = {}
-        std = {}  # 标准差
+        rate = dict()
+        std = dict()  # 标准差
         for name in dict_list.keys():
             hang_list = dict_list[name]
             rate[name] = sum(hang_list) / len(hang_list)
             std[name] = np.std(hang_list)
         return rate, std
+
+
+temp = RunThread()
 
 
 class RelationCompute(Resource):
@@ -160,4 +165,32 @@ class RelationCompute(Resource):
     '''
 
     def get(self):
+        '''
+        用于查询计算进度
+        :return:
+        '''
         pass
+
+    def post(self):
+        '''
+        控制计算的开始和停止
+        :return:
+        '''
+        # args: ImmutableMultiDict([('speciality_codes[0]', '12'), ('speciality_codes[1]', '34'), ('run', 'true')])
+        # {'speciality_codes[0]': '12', 'speciality_codes[1]': '34', 'run': 'true'}
+        # args = request.form.to_dict()
+        global temp
+
+        args = request.form
+        # 获取参数
+        run = True if args['run'] == 'true' else False
+        codes = []
+        n = len(args) - 1
+        for i in range(n):
+            codes.append(args.get('speciality_codes[' + str(i) + ']', None))
+
+        if run:
+            temp.start(codes)
+        else:
+            temp.stop()
+        return Result(data="ok")
