@@ -1,4 +1,7 @@
+import json
+import math
 import threading
+import time
 
 from util.data import load_pandas_df
 
@@ -108,12 +111,184 @@ def good_mark(mark_mean):
     return mark_mean + (100 - mark_mean) / 2
 
 
-class CalRelationThread(threading.Thread):
-    '''计算一次专业的线程'''
+def dump_obj(path, obj):
+    '''先清空再保存对象到文件'''
+    with open(path, 'w') as f:
+        json.dump(obj, f, ensure_ascii=False)
 
-    def __init__(self, name):
+
+class CalSpecialityRelationThread(threading.Thread):
+    '''
+    计算一个专业相关性的线程
+    '''
+
+    def __init__(self, speciality_code, grade='2015', temp_file_dir='/tmp/'):
         threading.Thread.__init__(self)
-        self.name = name
+        self.speciality_code = speciality_code
+        self.grade = grade
+        self.temp_file_dir = temp_file_dir + self.speciality_code
+        self.course_records = self.get_course_code()
+        self.beginIndex = 0
+        self.endIndex = len(self.course_records)
+        self.isRun = True  # 控制开关
+        self.single_links = []
+        self.isFinished = self.get_process()
+
+    def get_process(self):
+        try:
+            with open(self.temp_file_dir + '_process.txt', 'r') as f:
+                process = json.load(f)
+                self.beginIndex = process['beginIndex']
+                if process['isFinished']:
+                    self.isRun = False
+                    return True
+        except:
+            pass
+        return False
 
     def run(self):
-        pass
+        '''
+        先读取process记录,取出计算了多少
+        再开始计算links,中途保存结果
+        '''
+        if self.isRun:
+            self.get_single_links()
+            if self.beginIndex == self.endIndex:
+                links, nodes = self.get_nodes_and_links()
+                # 存到文件里
+                dump_obj(self.temp_file_dir + '_links.txt', links)
+                dump_obj(self.temp_file_dir + '_nodes.txt', nodes)
+                self.isFinished = True
+                self.stop()
+
+    def stop(self):
+        '''停止本次计算,保存结果,清理垃圾'''
+        self.isRun = False
+        process = dict()
+        process['beginIndex'] = self.beginIndex
+        process['endIndex'] = self.endIndex
+        process['isFinished'] = self.isFinished
+        # 写入文件
+        dump_obj(self.temp_file_dir + '_process.txt', process)
+        print('已停止')
+
+    def get_course_code(self):
+        '''如果本地没有,则从数据库查出课程名和代码,然后组合成一对对的返回'''
+        t_path = self.temp_file_dir + '_course_records.txt'
+        try:
+            with open(t_path, 'r') as f:
+                c = json.load(f)
+                return c
+        except:
+            sql = "select DISTINCT(course_name),course_code from view_stu_course_mark where speciality_code='%s' and course_type='必'  \
+            and grade='%s'" % (self.speciality_code, self.grade)
+            df = load_pandas_df(sql)
+            d_records = df.to_dict('records')
+            records = []
+            #             n = len(d_records)
+            n = 12
+            for i in range(n - 1):
+                for j in range(i + 1, n):
+                    t = (d_records[i], d_records[j])
+                    records.append(t)
+            dump_obj(t_path, records)
+        return records
+
+    def cal_relation(self, code1, code2):
+        '''计算相似度调用'''
+        # url2 = 'http://localhost:8082/course/relation/'
+        # url = url2 + code1 + '/' + code2
+        # re = requests.get(url)
+        # return re.json()['data']
+        return similar_of_two_course(code1, code2)
+
+    def drop_nan(self, num):
+        '''如果非数字,则返回0'''
+        return 0 if math.isnan(num) else num / 100
+
+    def get_single_links(self):
+        '''计算所有课程的两两关系,复杂度为n(n-1)/2'''
+        t_path = self.temp_file_dir + '_single_links.txt'
+        self.single_links.clear()  # 因为每次调用run方法,都需要重新执行
+        # 先从文件中读出已有的
+        try:
+            with open(t_path, 'r') as f:
+                l = f.readlines()
+                for x in l:
+                    d = json.loads(x)
+                    self.single_links.append(d)
+        except:
+            pass
+
+        batch_link = []  # 辅助写入文件的
+        begin_time = time.time()
+        for i in range(self.beginIndex, self.endIndex):
+            if not self.isRun:
+                break
+            code1 = self.course_records[i][0]['course_code']
+            code2 = self.course_records[i][1]['course_code']
+            result = self.cal_relation(code1, code2)
+            link = dict()
+            link['source'] = self.course_records[i][0]['course_name']
+            link['target'] = self.course_records[i][1]['course_name']
+            link['prob'] = self.drop_nan(float(result['prob']))
+            link['bg_prob'] = self.drop_nan(float(result['bg_prob']))
+            link['total'] = result['total']
+            self.single_links.append(link)
+            batch_link.append(link)
+            # 周期性地写入文件,保存结果,因为计算量很大,需要很长时间
+            if len(batch_link) > 30 or (i == self.endIndex - 1):
+                with open(t_path, 'a') as f:
+                    for x in batch_link:
+                        json.dump(x, f)
+                        f.write('\n')
+                    end_time = time.time()
+                    #                     print('写入%d条信息,耗时%.2f 秒' % (len(batch_link),end_time-begin_time))
+                    batch_link.clear()
+                    begin_time = end_time
+                    self.beginIndex = i + 1
+
+    def add_one_node_record(self, nodeRecord, name, prob):
+        if name in nodeRecord:
+            nodeRecord[name]['edgeCount'] += 1
+            nodeRecord[name]['probSum'] += prob
+        else:
+            record = {}
+            record['name'] = name
+            record['edgeCount'] = 1
+            record['probSum'] = prob
+            nodeRecord[name] = record
+
+    def get_nodes_and_links(self):
+        '''根据单个的课程间概率生成echarts展示的数据结构
+        包括nodes和links
+        nodes单个的结构如下:
+        {
+            category: 0,
+            name: '高等数学',
+            value: 10,
+            symbolSize: 50 //圆圈的大小,一般大于30,这里我用与之相连的课程数和他们的概率来计算
+        }
+        links的单个结构如下:
+        { source: '高等数学', target: '大学物理' }
+        '''
+        nodes = []
+        nodeRecord = dict()  # 帮助计算node,存储的结构{name:{edgeCount:0,probSum:0.0}}
+        links = []
+        for slink in self.single_links:
+            # 舍弃掉那些人数少的例子
+            if slink['total'] > 30:
+                link = dict()
+                link['source'] = slink['source']
+                link['target'] = slink['target']
+                links.append(link)
+                self.add_one_node_record(nodeRecord, slink['source'], slink['prob'])
+                self.add_one_node_record(nodeRecord, slink['target'], slink['prob'])
+        # 计算nodes
+        for name, v in nodeRecord.items():
+            node = dict()
+            node['category'] = 0
+            node['name'] = name
+            node['symbolSize'] = v['edgeCount'] + v['probSum'] * 2
+            nodes.append(node)
+        return links, nodes

@@ -152,3 +152,12 @@ class CourseTeacherCompare(Resource):
             rate[name] = sum(hang_list) / len(hang_list)
             std[name] = np.std(hang_list)
         return rate, std
+
+
+class RelationCompute(Resource):
+    '''
+    计算相关性接口
+    '''
+
+    def get(self):
+        pass
