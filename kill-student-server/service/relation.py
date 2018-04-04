@@ -133,14 +133,16 @@ class CalSpecialityRelationThread(threading.Thread):
         self.endIndex = len(self.course_records)
         self.isRun = True  # 控制开关
         self.single_links = []
+        self.time_spend = 0  # 总共计算的时间,按秒记
         self.isFinished = self.get_process()
 
     def get_process(self):
         try:
             with open(self.temp_file_dir + '_process.txt', 'r') as f:
                 process = json.load(f)
-                self.beginIndex = process['beginIndex']
-                if process['isFinished']:
+                self.beginIndex = process.get('beginIndex', 0)
+                self.time_spend = process.get('timeSpend', 0)
+                if process.get('isFinished', False):
                     self.isRun = False
                     return True
         except:
@@ -168,6 +170,7 @@ class CalSpecialityRelationThread(threading.Thread):
         process['beginIndex'] = self.beginIndex
         process['endIndex'] = self.endIndex
         process['isFinished'] = self.isFinished
+        process['timeSpend'] = self.time_spend
         # 写入文件
         dump_obj(self.temp_file_dir + '_process.txt', process)
 
@@ -247,8 +250,9 @@ class CalSpecialityRelationThread(threading.Thread):
                         json.dump(x, f)
                         f.write('\n')
                     end_time = time.time()
-                    #                     print('写入%d条信息,耗时%.2f 秒' % (len(batch_link),end_time-begin_time))
+                    # print('写入%d条信息,耗时%.2f 秒' % (len(batch_link),end_time-begin_time))
                     batch_link.clear()
+                    self.time_spend += end_time - begin_time
                     begin_time = end_time
                     self.beginIndex = i + 1
                 self.write_process()
@@ -303,6 +307,7 @@ class RunThread():
     '''
     因为直接在flask的Resource里保存线程,每次获得的都是不同的实例,所以有这个辅助类
     '''
+
     def __init__(self):
         self.threads = dict()
 

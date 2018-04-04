@@ -51,7 +51,7 @@ class CourseRelationCompute extends Component {
         }
         var t = this;
         net.post('/course/relation-compute', {
-            speciality_codes: ['0501', '0901'],
+            speciality_codes: ['0501', '0901', '0101', '0201', '0215', '0307', '0408', '0402'],
             run: run
         }, function (re) {
             t.setState({

@@ -37,7 +37,11 @@ def load_data(url, param=None, method_type='GET'):
         re = requests.get(url, params=param)
     elif method_type == 'POST':
         re = requests.post(url)
-    return re.json()['data']
+    try:
+        return (re.json()).get('data', None)
+    except:
+        print(re)
+        return None
 
 
 def load_data_by_uri(uri, param=None):
