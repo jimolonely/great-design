@@ -5,6 +5,7 @@ import time
 
 from util.config import TEMP_FILE_PATH
 from util.data import load_pandas_df
+from util.useful import dump_obj
 
 
 def similar_of_two_course(course_code1, course_code2, speciality_code=None):
@@ -110,12 +111,6 @@ def good_mark(mark_mean):
     求优秀的分数线,差就是小于平均值的分数
     '''
     return mark_mean + (100 - mark_mean) / 2
-
-
-def dump_obj(path, obj):
-    '''先清空再保存对象到文件'''
-    with open(path, 'w') as f:
-        json.dump(obj, f, ensure_ascii=False)
 
 
 class CalSpecialityRelationThread(threading.Thread):

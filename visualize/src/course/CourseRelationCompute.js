@@ -29,14 +29,21 @@ class CourseRelationCompute extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            isRunning: false
+            isRunning: false,
+            processData: []
         }
         this.refresh = this.refresh.bind(this);
         this.beginCompute = this.beginCompute.bind(this);
     }
 
     refresh() {
-
+        var t = this;
+        net.get('/course/relation-compute', function (re) {
+            console.log(re.data.data);
+            t.setState({
+                processData: re.data.data
+            });
+        });
     }
 
     beginCompute() {
@@ -71,11 +78,11 @@ class CourseRelationCompute extends Component {
                 <p>专业名称-专业代码-计算进度</p>
                 <List
                     itemLayout="horizontal"
-                    dataSource={data}
+                    dataSource={this.state.processData}
                     renderItem={
                         item => (
                             <List.Item>
-                                {item.name} &nbsp; {item.code} &nbsp;
+                                {item.name} {item.code}
                                 <Progress percent={item.progress} />
                             </List.Item>
                         )

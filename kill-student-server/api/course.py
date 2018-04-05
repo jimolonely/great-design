@@ -7,6 +7,8 @@ from util.data import load_pandas_df
 import numpy as np
 
 from util.config import TEMP_FILE_PATH
+from util.useful import load_dumped_file
+import os
 
 
 class Relation(Resource):
@@ -169,7 +171,17 @@ class RelationCompute(Resource):
         用于查询计算进度
         :return:
         '''
-        pass
+        processFiles = os.listdir(TEMP_FILE_PATH)
+        result = []
+        for pf in processFiles:
+            if pf.find("process") != -1:
+                process = load_dumped_file(os.path.join(TEMP_FILE_PATH, pf))
+                item = dict()
+                item['progress'] = process.get('beginIndex', 0) / process.get('endIndex', 1) * 100
+                item['name'] = process.get('specialityCode', '未知')
+                item['code'] = process.get('specialityCode', '未知')
+                result.append(item)
+        return Result(data=result)
 
     def post(self):
         '''
