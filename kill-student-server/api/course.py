@@ -220,3 +220,27 @@ class GetThreadState(Resource):
         '''
         global temp
         return Result(data=temp.is_run())
+
+
+class ShowCourseRelation(Resource):
+    def get(self):
+        '''
+        从文件里获取计算好的专业nodes和links列表
+        :return:[{
+            code:'1010',
+            courseNum:100
+        }]
+        '''
+        try:
+            tempFiles = os.listdir(TEMP_FILE_PATH)
+        except:
+            return Result(data=[])
+        result = []
+        for pf in tempFiles:
+            if pf.find("nodes") != -1:
+                nodes = load_dumped_file(os.path.join(TEMP_FILE_PATH, pf))
+                item = dict()
+                item['courseNum'] = len(nodes)
+                item['code'] = pf[:pf.find("_")]
+                result.append(item)
+        return Result(data=result)

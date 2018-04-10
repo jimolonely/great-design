@@ -1,31 +1,31 @@
 import React, { Component } from "react";
 import { Input, Button, Row, Col, List } from "antd";
 import ReactEcharts from 'echarts-for-react';
+import * as net from "../utils/net";
 
-
-const data = [
-    {
-        code: '1001',
-        courseNum: 100
-    },
-    {
-        code: '1001',
-        courseNum: 100
-    },
-    {
-        code: '1001',
-        courseNum: 100
-    }
-]
 
 class CourseRelationShow extends Component {
     constructor(props) {
         super(props);
         this.state = {
             specialityCode: '',
+            speciality: [],/**完成计算的专业列表*/
             nodes: [],
             links: []
         }
+    }
+
+    componentDidMount() {
+        this.loadSpecialityList();
+    }
+
+    loadSpecialityList() {
+        var t = this;
+        net.get("/course/relation-show/complete-speciality", function (re) {
+            t.setState({
+                speciality: re.data.data
+            });
+        });
     }
 
     getOption() {
@@ -86,8 +86,8 @@ class CourseRelationShow extends Component {
         return option;
     }
 
-    viewGraph() {
-        console.log("view");
+    viewGraph(item) {
+        console.log(item);
     }
 
     render() {
@@ -97,10 +97,10 @@ class CourseRelationShow extends Component {
                     <Col span={6}>
                         <List
                             itemLayout="horizontal"
-                            dataSource={data}
+                            dataSource={this.state.speciality}
                             renderItem={
                                 item => (
-                                    <List.Item actions={[<a onClick={this.viewGraph}>查看图谱</a>]}>
+                                    <List.Item actions={[<a onClick={() => this.viewGraph(item)}>查看图谱</a>]}>
                                         专业{item.code}共{item.courseNum}门课
                                     </List.Item>
                                 )

@@ -64,11 +64,17 @@ def similar_of_two_course(course_code1, course_code2, speciality_code=None):
     # 计算个数和比例
     goods2_cnt = stu_goods2.count()['mark1']
     all_goods_cnt = stu_all_goods.count()['mark1']
-    good_prob = all_goods_cnt / goods2_cnt
+    if goods2_cnt == 0:
+        good_prob = 0
+    else:
+        good_prob = all_goods_cnt / goods2_cnt
 
     bads2_cnt = stu_bads2.count()['mark2']
     all_bads_cnt = stu_all_bads.count()['mark2']
-    bad_prob = all_bads_cnt / bads2_cnt
+    if bads2_cnt == 0:
+        bad_prob = 0
+    else:
+        bad_prob = all_bads_cnt / bads2_cnt
 
     all_cnt = df.count()['student_id']
     normal2_cnt = all_cnt - goods2_cnt - bads2_cnt
@@ -83,9 +89,16 @@ def similar_of_two_course(course_code1, course_code2, speciality_code=None):
 
     # debug
     cnt = goods2_cnt + bads2_cnt
-    w_good = goods2_cnt / cnt
-    w_bad = bads2_cnt / cnt
+    if cnt == 0:
+        w_good, w_bad = 0, 0
+    else:
+        w_good = goods2_cnt / cnt
+        w_bad = bads2_cnt / cnt
     bg_prob = w_good * good_prob + w_bad * bad_prob
+
+    print(goods2_cnt)
+    print(bads2_cnt)
+    print(cnt)
 
     # 返回总数据量,最后的比例结果
     return {
