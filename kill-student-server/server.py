@@ -27,7 +27,8 @@ api.add_resource(Difficulty, '/course/difficulty/<course_code>')
 api.add_resource(CourseTeacherCompare, '/course/teacher-compare/<course_code>')
 api.add_resource(RelationCompute, '/course/relation-compute')
 api.add_resource(GetThreadState, '/course/relation-compute/get-state')
-api.add_resource(ShowCourseRelation, '/course/relation-show/complete-speciality')
+api.add_resource(ShowCourseRelation, '/course/relation-show/complete-speciality',
+                 '/course/relation-show/get-nodes-links')
 
 if __name__ == '__main__':
     app.run(debug=True, port=8082, host='0.0.0.0')

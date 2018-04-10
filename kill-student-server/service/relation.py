@@ -96,9 +96,9 @@ def similar_of_two_course(course_code1, course_code2, speciality_code=None):
         w_bad = bads2_cnt / cnt
     bg_prob = w_good * good_prob + w_bad * bad_prob
 
-    print(goods2_cnt)
-    print(bads2_cnt)
-    print(cnt)
+    # print(goods2_cnt)
+    # print(bads2_cnt)
+    # print(cnt)
 
     # 返回总数据量,最后的比例结果
     return {

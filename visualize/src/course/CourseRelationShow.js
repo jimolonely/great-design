@@ -11,7 +11,8 @@ class CourseRelationShow extends Component {
             specialityCode: '',
             speciality: [],/**完成计算的专业列表*/
             nodes: [],
-            links: []
+            links: [],
+            graphHeight: 600/**关系图高度 */
         }
     }
 
@@ -88,6 +89,15 @@ class CourseRelationShow extends Component {
 
     viewGraph(item) {
         console.log(item);
+        var t = this;
+        net.post("/course/relation-show/get-nodes-links", {
+            code: item.code
+        }, function (re) {
+            t.setState({
+                nodes: re.data.data.nodes,
+                links: re.data.data.links
+            })
+        });
     }
 
     render() {
@@ -108,7 +118,7 @@ class CourseRelationShow extends Component {
                         />
                     </Col>
                     <Col span={18}>
-                        <ReactEcharts option={this.getOption()} />
+                        <ReactEcharts option={this.getOption()} style={{ height: this.state.graphHeight + 'px' }} />
                     </Col>
                 </Row>
             </div>

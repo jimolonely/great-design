@@ -244,3 +244,20 @@ class ShowCourseRelation(Resource):
                 item['code'] = pf[:pf.find("_")]
                 result.append(item)
         return Result(data=result)
+
+    def post(self):
+        '''
+        post方式就从文件读取nodes和links返回
+        :return:
+        '''
+        args = request.form
+        code = args.get('code', None)
+        re = dict()
+        re['nodes'] = []
+        re['links'] = []
+        if code:
+            nodes = load_dumped_file(os.path.join(TEMP_FILE_PATH, code + '_nodes.txt'))
+            links = load_dumped_file(os.path.join(TEMP_FILE_PATH, code + '_links.txt'))
+            re['nodes'] = nodes
+            re['links'] = links
+        return Result(data=re)
