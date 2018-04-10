@@ -1,0 +1,1 @@
+{"specialityCode": "0501", "beginIndex": 527, "endIndex": 32131, "isFinished": false, "timeSpend": 3193.3750903606415}

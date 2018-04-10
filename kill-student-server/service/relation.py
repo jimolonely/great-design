@@ -319,3 +319,10 @@ class RunThread():
             thread.stop()
         self.threads.clear()
         print("stop")
+
+    def is_run(self):
+        '''
+        获取运行状态,如果无线程则没运行
+        :return:
+        '''
+        return not len(self.threads) == 0

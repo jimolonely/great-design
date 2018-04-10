@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {
     Radar
 } from 'recharts';
-import { Button, Input, Progress, List } from 'antd';
+import { Button, Input, Progress, List, Row, Col } from 'antd';
 import * as net from "../utils/net";
 
 
@@ -34,6 +34,29 @@ class CourseRelationCompute extends Component {
         }
         this.refresh = this.refresh.bind(this);
         this.beginCompute = this.beginCompute.bind(this);
+    }
+
+    /**
+     * 在控件准备好后从服务端获取线程是否在运行
+     * 并获取进度
+     */
+    componentDidMount() {
+        var t = this;
+        net.get('/course/relation-compute/get-state', function (re) {
+            var run = false;
+            var btnRun = document.getElementById("btnRun");
+            if (re.data.data == false) {
+                btnRun.innerHTML = "开启计算";
+                run = false;
+            } else {
+                btnRun.innerHTML = "停止计算";
+                run = true;
+            }
+            t.setState({
+                isRunning: run
+            });
+        });
+        this.refresh();
     }
 
     refresh() {
@@ -75,15 +98,23 @@ class CourseRelationCompute extends Component {
                 <Button type="primary" onClick={this.refresh}>刷新状态</Button>
                 <hr />
                 <p>进度列表</p>
-                <p>专业名称-专业代码-计算进度</p>
+                <p>专业名称-专业代码-已用时长-计算进度</p>
                 <List
+                    grid={{ gutter: 16, column: 1 }}
                     itemLayout="horizontal"
                     dataSource={this.state.processData}
                     renderItem={
                         item => (
                             <List.Item>
-                                {item.name} {item.code}
-                                <Progress percent={item.progress} />
+                                <div>
+                                    <Row>
+                                        <Col span={3}>{item.name} </Col>
+                                        <Col span={3}>{item.code} </Col>
+                                        <Col span={4}>{item.time.toFixed(2)}秒</Col>
+                                        <Col span={14}><Progress percent={item.progress}
+                                            format={percent => percent.toFixed(2) + "%"} /></Col>
+                                    </Row>
+                                </div>
                             </List.Item>
                         )
                     }

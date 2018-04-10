@@ -166,12 +166,15 @@ class RelationCompute(Resource):
     计算相关性接口
     '''
 
-    def get(self):
+    def get(self, state=None):
         '''
         用于查询计算进度
         :return:
         '''
-        processFiles = os.listdir(TEMP_FILE_PATH)
+        try:
+            processFiles = os.listdir(TEMP_FILE_PATH)
+        except:
+            return Result(data=[])
         result = []
         for pf in processFiles:
             if pf.find("process") != -1:
@@ -180,6 +183,7 @@ class RelationCompute(Resource):
                 item['progress'] = process.get('beginIndex', 0) / process.get('endIndex', 1) * 100
                 item['name'] = process.get('specialityCode', '未知')
                 item['code'] = process.get('specialityCode', '未知')
+                item['time'] = process.get('timeSpend', 0)
                 result.append(item)
         return Result(data=result)
 
@@ -206,3 +210,13 @@ class RelationCompute(Resource):
         else:
             temp.stop()
         return Result(data="ok")
+
+
+class GetThreadState(Resource):
+    def get(self):
+        '''
+        获取线程状态
+        :return:
+        '''
+        global temp
+        return Result(data=temp.is_run())
