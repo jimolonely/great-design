@@ -252,12 +252,39 @@ class ShowCourseRelation(Resource):
         '''
         args = request.form
         code = args.get('code', None)
+        top_node_num = int(args.get('topNodeNum', 0))
+        max_node_size = int(args.get('maxNodeSize', 30))
         re = dict()
         re['nodes'] = []
         re['links'] = []
+        re['originNodeNum'] = 0
         if code:
             nodes = load_dumped_file(os.path.join(TEMP_FILE_PATH, code + '_nodes.txt'))
             links = load_dumped_file(os.path.join(TEMP_FILE_PATH, code + '_links.txt'))
-            re['nodes'] = nodes
+            re['originNodeNum'] = len(nodes)
+            re['nodes'] = self.adjust_graph(nodes, top_node_num, max_node_size)
             re['links'] = links
         return Result(data=re)
+
+    def adjust_graph(self, nodes, top_node_num, max_node_size=30):
+        '''
+        矫正关系图
+        :param max_node_size:最大节点大小,建议30
+        :param top_node_num: 最多显示多少个从大到小排序的节点
+        :return:
+        '''
+        if len(nodes) == 0:
+            return []
+        if top_node_num <= 0:
+            top_node_num = len(nodes)
+        # 找出最大的
+        nodes = sorted(nodes, key=lambda n: n['symbolSize'], reverse=True)
+        max_size = nodes[0]['symbolSize']
+        scale = max_size / max_node_size
+        nodes_now = []
+        for node in nodes[:top_node_num]:
+            node['symbolSize'] /= scale
+            # 舍去小的
+            if node['symbolSize'] > 1:
+                nodes_now.append(node)
+        return nodes_now
