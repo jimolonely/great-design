@@ -1,7 +1,7 @@
 import axios from 'axios';
 import qs from 'qs'; //对参数转化
 import './loading.css';
-// axios.defaults.baseURL = 'http://localhost:8082';
+// axios.defaults.baseURL = 'http://192.168.1.146:8082';
 
 function loadShow() {
     var loadDiv = document.createElement("div");
@@ -30,7 +30,7 @@ function loadHide() {
 
 export function get(url, callback, errorHandler = null) {
     loadShow();
-    axios.get('http://localhost:8082' + url
+    axios.get('http://192.168.1.146:8082' + url
     ).then(function (response) {
         loadHide();
         if (response.data.ok === false) {
@@ -52,7 +52,7 @@ export function get(url, callback, errorHandler = null) {
 
 export function post(url, jsonParam, callback, errorHandler = null) {
     loadShow();
-    axios.post('http://localhost:8082' + url,
+    axios.post('http://192.168.1.146:8082' + url,
         qs.stringify(jsonParam)
     ).then(function (response) {
         loadHide();
@@ -74,7 +74,7 @@ export function post(url, jsonParam, callback, errorHandler = null) {
 }
 
 export function jget(url, callback, errorHandler = null) {
-    axios.get('http://localhost:8081' + url
+    axios.get('http://192.168.1.146:8081' + url
     ).then(function (response) {
         if (response.data.ok === false) {
             console.log(response.data.msg);
@@ -93,7 +93,7 @@ export function jget(url, callback, errorHandler = null) {
 }
 
 export function jpost(url, jsonParam, callback, errorHandler = null) {
-    axios.post('http://localhost:8081' + url,
+    axios.post('http://192.168.1.146:8081' + url,
         qs.stringify(jsonParam)
     ).then(function (response) {
         if (response.data.ok === false) {
