@@ -1,0 +1,1 @@
+{"stuNum": {"female": 176, "male": 517}, "avgMark": {"totalAvg": 78.19690200027885, "female": 81.91777003351476, "male": 76.9302235208794}, "goodStuNum": {"female": 3, "male": 5}, "badStuNum": {"male": 39}, "failStuNum": {"female": 74, "male": 342}}

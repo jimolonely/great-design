@@ -1,7 +1,10 @@
 import threading
 import numpy as np
+import os
 
 from util.data import load_pandas_df
+from util.config import TEMP_COLLEGE_MARK_FILE_PATH
+from util.useful import dump_obj
 
 
 class CollegeMarks(threading.Thread):
@@ -16,18 +19,25 @@ class CollegeMarks(threading.Thread):
         self.df = self.load_college_mark_df()
         self.marks = self.get_avg_stu_marks_df()
         self.data = dict()
+        self.is_run = True
 
     def run(self):
-        self.get_stu_num_by_sex()
-        self.get_mean_mark()
-        self.get_good_stu_num()
-        self.get_bad_stu_num()
-        self.get_fail_stu_num()
-        if len(self.data) >= 5:  # 标志着所有计算完成,可以写入存储了
-            self.write_to_file()
+        while self.is_run:
+            self.get_stu_num_by_sex()
+            self.get_mean_mark()
+            self.get_good_stu_num()
+            self.get_bad_stu_num()
+            self.get_fail_stu_num()
+            if len(self.data) >= 5:  # 标志着所有计算完成,可以写入存储了
+                self.write_to_file()
+                self.is_run = False
+                print('退出college %s 线程' % self.college_code)
 
     def write_to_file(self):
-        pass
+        if not os.path.exists(TEMP_COLLEGE_MARK_FILE_PATH):
+            os.makedirs(TEMP_COLLEGE_MARK_FILE_PATH)
+        dump_obj(os.path.join(TEMP_COLLEGE_MARK_FILE_PATH, self.college_code + '_' + self.grade + '_mark.txt'),
+                 self.data)
 
     def load_college_mark_df(self):
         '''
@@ -36,7 +46,7 @@ class CollegeMarks(threading.Thread):
         '''
         sql = "select *,CONVERT(VARCHAR,birthday,112) as birth from view_stu_course_mark " \
               "where college_code='%s' and grade='%s'" % (self.college_code, self.grade)
-        self.df = load_pandas_df(sql)
+        return load_pandas_df(sql)
 
     def get_avg_stu_marks_df(self):
         '''
@@ -47,13 +57,13 @@ class CollegeMarks(threading.Thread):
             ['student_id', 'college_code', 'college_name', 'sex', 'name', 'birth', 'class_code', 'class_name',
              'nation_name', 'party', 'province', 'city', 'speciality_code', 'speciality_name', 'grade'],
             as_index=False)  # 保留列
-        self.marks = g.agg({'pmark': 'mean'})
+        return g.agg({'pmark': 'mean'})
 
     def change_key(self, d):
         if '女' in d:
-            d['female'] = d.pop('女')
+            d['female'] = d.pop('女').item()
         if '男' in d:
-            d['male'] = d.pop('男')
+            d['male'] = d.pop('男').item()
         return d
 
     def get_stu_num_by_sex(self):
@@ -71,7 +81,7 @@ class CollegeMarks(threading.Thread):
         :return:
         '''
         if 'avgMark' not in self.data:
-            total_avg = self.marks['pmark'].mean()
+            total_avg = self.marks['pmark'].mean().item()
             d = self.marks.groupby('sex', as_index=False).agg({'pmark': np.average}).to_dict()
             avg = dict()
             avg['totalAvg'] = total_avg
@@ -85,7 +95,7 @@ class CollegeMarks(threading.Thread):
             d = self.marks[self.marks['pmark'] > 90].groupby('sex', as_index=False).agg({'pmark': 'count'}).to_dict()
             num = dict()
             for i in range(len(d['sex'])):
-                num[d['sex'][i]] = num['pmark'][i]
+                num[d['sex'][i]] = d['pmark'][i]
             self.data['goodStuNum'] = self.change_key(num)
 
     def get_bad_stu_num(self):
@@ -94,7 +104,7 @@ class CollegeMarks(threading.Thread):
             d = self.marks[self.marks['pmark'] < 65].groupby('sex', as_index=False).agg({'pmark': 'count'}).to_dict()
             num = dict()
             for i in range(len(d['sex'])):
-                num[d['sex'][i]] = num['pmark'][i]
+                num[d['sex'][i]] = d['pmark'][i]
             self.data['badStuNum'] = self.change_key(num)
 
     def get_fail_stu_num(self):
@@ -104,5 +114,22 @@ class CollegeMarks(threading.Thread):
                 .groupby('sex', as_index=False).agg({'pmark': 'count'}).to_dict()
             num = dict()
             for i in range(len(d['sex'])):
-                num[d['sex'][i]] = num['pmark'][i]
+                num[d['sex'][i]] = d['pmark'][i]
             self.data['failStuNum'] = self.change_key(num)
+
+
+'''
+测试代码
+'''
+
+
+def test_college():
+    colleges = ['04', '03']
+    grades = ['2014', '2013']
+    for c in colleges:
+        for g in grades:
+            t = CollegeMarks(c, g)
+            t.start()
+
+
+test_college()

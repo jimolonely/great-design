@@ -3,7 +3,7 @@ import math
 import threading
 import time
 
-from util.config import TEMP_FILE_PATH
+from util.config import TEMP_RELATION_FILE_PATH
 from util.data import load_pandas_df
 from util.useful import dump_obj
 
@@ -322,7 +322,7 @@ class RunThread():
     def start(self, codes):
         print("start")
         for code in codes:
-            thread = CalSpecialityRelationThread(code, temp_file_dir=TEMP_FILE_PATH)
+            thread = CalSpecialityRelationThread(code, temp_file_dir=TEMP_RELATION_FILE_PATH)
             thread.start()
             self.threads[code] = thread
 

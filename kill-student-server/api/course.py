@@ -6,7 +6,7 @@ from service.relation import *
 from util.data import load_pandas_df
 import numpy as np
 
-from util.config import TEMP_FILE_PATH
+from util.config import TEMP_RELATION_FILE_PATH
 from util.useful import load_dumped_file
 import os
 
@@ -172,13 +172,13 @@ class RelationCompute(Resource):
         :return:
         '''
         try:
-            processFiles = os.listdir(TEMP_FILE_PATH)
+            processFiles = os.listdir(TEMP_RELATION_FILE_PATH)
         except:
             return Result(data=[])
         result = []
         for pf in processFiles:
             if pf.find("process") != -1:
-                process = load_dumped_file(os.path.join(TEMP_FILE_PATH, pf))
+                process = load_dumped_file(os.path.join(TEMP_RELATION_FILE_PATH, pf))
                 item = dict()
                 item['progress'] = process.get('beginIndex', 0) / process.get('endIndex', 1) * 100
                 item['name'] = process.get('specialityCode', '未知')
@@ -232,13 +232,13 @@ class ShowCourseRelation(Resource):
         }]
         '''
         try:
-            tempFiles = os.listdir(TEMP_FILE_PATH)
+            tempFiles = os.listdir(TEMP_RELATION_FILE_PATH)
         except:
             return Result(data=[])
         result = []
         for pf in tempFiles:
             if pf.find("nodes") != -1:
-                nodes = load_dumped_file(os.path.join(TEMP_FILE_PATH, pf))
+                nodes = load_dumped_file(os.path.join(TEMP_RELATION_FILE_PATH, pf))
                 item = dict()
                 item['courseNum'] = len(nodes)
                 item['code'] = pf[:pf.find("_")]
@@ -259,8 +259,8 @@ class ShowCourseRelation(Resource):
         re['links'] = []
         re['originNodeNum'] = 0
         if code:
-            nodes = load_dumped_file(os.path.join(TEMP_FILE_PATH, code + '_nodes.txt'))
-            links = load_dumped_file(os.path.join(TEMP_FILE_PATH, code + '_links.txt'))
+            nodes = load_dumped_file(os.path.join(TEMP_RELATION_FILE_PATH, code + '_nodes.txt'))
+            links = load_dumped_file(os.path.join(TEMP_RELATION_FILE_PATH, code + '_links.txt'))
             re['originNodeNum'] = len(nodes)
             re['nodes'] = self.adjust_graph(nodes, top_node_num, max_node_size)
             re['links'] = links
