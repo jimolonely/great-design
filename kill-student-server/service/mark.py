@@ -26,10 +26,9 @@ class MarkMetaInfo(threading.Thread):
         self.df = self.load_college_mark_df()
         self.marks = self.get_avg_stu_marks_df()
         self.data = dict()
-        self.time_spend = 0
+        self.start_time = time.time()
 
     def run(self):
-        startTime = time.time()
         while self.is_run:
             self.get_stu_num_by_sex()
             self.get_mean_mark()
@@ -41,7 +40,6 @@ class MarkMetaInfo(threading.Thread):
             self.get_property_result('nation_name')
             # TODO
             if len(self.data) >= 8:  # 标志着所有计算完成,可以写入存储了
-                self.time_spend = time.time() - startTime
                 self.write_to_file()
                 self.is_run = False
                 print('退出 %s-%s-%s 线程' % (self.name, self.code, self.grade))
@@ -61,7 +59,7 @@ class MarkMetaInfo(threading.Thread):
         self.data['name'] = self.name
         self.data['code'] = self.code
         self.data['grade'] = self.grade
-        self.data['timeSpend'] = self.time_spend
+        self.data['timeSpend'] = time.time() - self.start_time
         dump_obj(os.path.join(self.path, self.code + '_' + self.grade + '_mark.txt'), self.data)
 
     def load_college_mark_df(self):
@@ -126,7 +124,7 @@ class MarkMetaInfo(threading.Thread):
         要根据学生id聚类然后计算其平均分
         :return:
         '''
-        if self.df != None and not self.df.empty:
+        if self.df is not None and not self.df.empty:
             g = self.df.groupby(
                 ['student_id', 'college_code', 'college_name', 'sex', 'name', 'birth', 'class_code',
                  'class_name', 'nation_name', 'party', 'province', 'city', 'speciality_code',
