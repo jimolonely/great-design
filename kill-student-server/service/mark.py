@@ -1,6 +1,6 @@
 import os
 import threading
-
+import time
 import numpy as np
 
 from util.config import MarkMetaType
@@ -26,8 +26,10 @@ class MarkMetaInfo(threading.Thread):
         self.df = self.load_college_mark_df()
         self.marks = self.get_avg_stu_marks_df()
         self.data = dict()
+        self.time_spend = 0
 
     def run(self):
+        startTime = time.time()
         while self.is_run:
             self.get_stu_num_by_sex()
             self.get_mean_mark()
@@ -39,6 +41,7 @@ class MarkMetaInfo(threading.Thread):
             self.get_property_result('nation_name')
             # TODO
             if len(self.data) >= 8:  # 标志着所有计算完成,可以写入存储了
+                self.time_spend = time.time() - startTime
                 self.write_to_file()
                 self.is_run = False
                 print('退出 %s-%s-%s 线程' % (self.name, self.code, self.grade))
@@ -58,6 +61,7 @@ class MarkMetaInfo(threading.Thread):
         self.data['name'] = self.name
         self.data['code'] = self.code
         self.data['grade'] = self.grade
+        self.data['timeSpend'] = self.time_spend
         dump_obj(os.path.join(self.path, self.code + '_' + self.grade + '_mark.txt'), self.data)
 
     def load_college_mark_df(self):
@@ -280,5 +284,4 @@ def test_speciality():
             t = MarkMetaInfo('专业', c, g, MarkMetaType.SPECIALITY)
             t.start()
 
-
-test_speciality()
+# test_speciality()

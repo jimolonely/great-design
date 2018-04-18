@@ -7,6 +7,7 @@ TEMP_RELATION_FILE_PATH = '/home/jimo/workspace/Git/great-design/relation-data/'
 TEMP_COLLEGE_MARK_FILE_PATH = '/home/jimo/workspace/Git/great-design/mark/college/'
 TEMP_SPECIALITY_MARK_FILE_PATH = '/home/jimo/workspace/Git/great-design/mark/speciality/'
 TEMP_CLASS_MARK_FILE_PATH = '/home/jimo/workspace/Git/great-design/mark/class/'
+TEMP_META_MARK_FILE_PATH = '/home/jimo/workspace/Git/great-design/mark/meta/'
 
 
 class MarkMetaType(Enum):
