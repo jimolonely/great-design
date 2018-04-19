@@ -28,6 +28,7 @@ def cal_mark():
         for s in speciality:
             t = MarkMetaInfo(s['speciality_name'], s['speciality_code'], g['grade'], MarkMetaType.SPECIALITY)
             t.start()
+            t.join()
 
 
 def load_meta_data(sql, file_name):

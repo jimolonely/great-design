@@ -45,6 +45,7 @@ class MarkMetaInfo(threading.Thread):
                 print('退出 %s-%s-%s 线程' % (self.name, self.code, self.grade))
 
     def get_path(self):
+        self.start_time = time.time()
         if self.type == MarkMetaType.COLLEGE:
             path = TEMP_COLLEGE_MARK_FILE_PATH
         elif self.type == MarkMetaType.SPECIALITY:
@@ -155,6 +156,8 @@ class MarkMetaInfo(threading.Thread):
         :return:
         '''
         if 'avgMark' not in self.data:
+            # AttributeError: 'float' object has no attribute 'item'
+            # [留学生]工商管理 ,[留学生]计算机科学与技术 2010
             total_avg = self.marks['pmark'].mean().item()
             d = self.marks.groupby('sex', as_index=False).agg({'pmark': np.average}).to_dict()
             avg = dict()
