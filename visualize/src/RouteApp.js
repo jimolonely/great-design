@@ -17,6 +17,7 @@ import CourseTeacherCompare from "./course/CourseTeacherCompare";
 import CourseRelationCompute from "./course/CourseRelationCompute";
 import Studenta from './student/Studenta';
 import TeaWC from "./teacher/TeaWC";
+import CollegeMark from "./mark/CollegeMark";
 
 const SubMenu = Menu.SubMenu;
 
@@ -66,6 +67,9 @@ class RouteApp extends Component {
               <Menu.Item key="tea-wc"><Link to="/tea/wc">老师的评价词云 </Link></Menu.Item>
               <Menu.Item key="tea-course-compare"><Link to="/course">老师的不同课程对比 </Link></Menu.Item>
             </SubMenu>
+            <SubMenu title={<span><Icon type="line-chart" />Mark</span>}>
+              <Menu.Item key="mark-college"><Link to="/mark/college">学院成绩分析</Link></Menu.Item>
+            </SubMenu>
           </Menu>
           <div style={{ padding: '20px' }}>
             <Route exact path="/" component={App} />
@@ -79,6 +83,7 @@ class RouteApp extends Component {
             <Route exact path="/stu/wc" component={StuWC} />
             <Route exact path="/stu/studenta" component={Studenta} />
             <Route exact path="/tea/wc" component={TeaWC} />
+            <Route exact path="/mark/college" component={CollegeMark} />
           </div>
         </div>
       </Router>
