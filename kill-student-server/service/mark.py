@@ -5,9 +5,9 @@ import numpy as np
 
 from util.config import MarkMetaType
 from util.config import TEMP_COLLEGE_MARK_FILE_PATH, TEMP_CLASS_MARK_FILE_PATH, \
-    TEMP_SPECIALITY_MARK_FILE_PATH
+    TEMP_SPECIALITY_MARK_FILE_PATH, TEMP_META_MARK_FILE_PATH
 from util.data import load_pandas_df
-from util.useful import dump_obj
+from util.useful import dump_obj, load_dumped_file
 
 
 class MarkMetaInfo(threading.Thread):
@@ -242,6 +242,7 @@ class MarkMetaInfo(threading.Thread):
             self.data[property] = re
 
 
+# =====================DEBUG BEGIN======================#
 '''
 测试代码
 '''
@@ -285,4 +286,32 @@ def test_speciality():
             t = MarkMetaInfo('专业', c, g, MarkMetaType.SPECIALITY)
             t.start()
 
+
 # test_speciality()
+
+# =====================DEBUG END======================#
+
+def load_college_grades():
+    college = load_dumped_file(os.path.join(TEMP_META_MARK_FILE_PATH, 'college.txt'))
+    grade = load_dumped_file(os.path.join(TEMP_META_MARK_FILE_PATH, 'grade.txt'))
+    colleges = [c['college_name'] + '_' + c['college_code'] for c in college]
+    grades = [g['grade'] for g in grade]
+    return colleges, grades
+
+
+def load_college_marks(college_code, grade):
+    c = load_dumped_file(os.path.join(TEMP_COLLEGE_MARK_FILE_PATH, college_code + '_' + grade + '_mark.txt'))
+    if c is None:
+        return None
+    num = []
+    stuNumName = ['all', 'good', 'bad', 'failed']
+    num.append(c['stuNum'])
+    num.append(c['goodStuNum'])
+    num.append(c['badStuNum'])
+    num.append(c['failStuNum'])
+    for i in range(len(num)):
+        num[i]['name'] = stuNumName[i]
+    re = dict()
+    re['stuNum'] = num
+
+    return re
