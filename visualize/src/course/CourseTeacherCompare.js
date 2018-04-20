@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Label
+    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend
 } from 'recharts';
 import { Button, Input, Row, Col } from 'antd';
 import * as net from "../utils/net";

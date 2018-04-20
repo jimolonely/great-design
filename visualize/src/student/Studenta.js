@@ -5,9 +5,9 @@ import {
 } from 'antd';
 import {
     Radar, RadarChart, PolarGrid, Legend,
-    PolarAngleAxis, PolarRadiusAxis
+    PolarAngleAxis //, PolarRadiusAxis
 } from 'recharts';
-import * as net from "../utils/net";
+// import * as net from "../utils/net";
 import './Studenta.css';
 
 const data = [

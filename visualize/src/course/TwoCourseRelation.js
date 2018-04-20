@@ -1,7 +1,4 @@
 import React, { Component } from 'react';
-import {
-    Radar
-} from 'recharts';
 import { Button, Input, Progress } from 'antd';
 import * as net from "../utils/net";
 // import '../Public.css';

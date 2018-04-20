@@ -1,28 +1,25 @@
 import React, { Component } from 'react';
-import {
-    Radar
-} from 'recharts';
-import { Button, Input, Progress, List, Row, Col } from 'antd';
+import { Button, Progress, List, Row, Col } from 'antd';
 import * as net from "../utils/net";
 
 
-const data = [
-    {
-        name: '计算机',
-        code: '120',
-        progress: 90
-    },
-    {
-        name: '软件工程',
-        code: '120',
-        progress: 70
-    },
-    {
-        name: '土木工程',
-        code: '120',
-        progress: 40
-    }
-];
+// const data = [
+//     {
+//         name: '计算机',
+//         code: '120',
+//         progress: 90
+//     },
+//     {
+//         name: '软件工程',
+//         code: '120',
+//         progress: 70
+//     },
+//     {
+//         name: '土木工程',
+//         code: '120',
+//         progress: 40
+//     }
+// ];
 
 class CourseRelationCompute extends Component {
 
@@ -45,7 +42,8 @@ class CourseRelationCompute extends Component {
         net.get('/course/relation-compute/get-state', function (re) {
             var run = false;
             var btnRun = document.getElementById("btnRun");
-            if (re.data.data == false) {
+            // console.log(re.data)
+            if (re.data.data === false) {
                 btnRun.innerHTML = "开启计算";
                 run = false;
             } else {

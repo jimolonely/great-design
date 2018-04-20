@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import {
-    Radar, RadarChart, PolarGrid, Legend,
-    PolarAngleAxis, PolarRadiusAxis
-} from 'recharts';
-import { Button, Input, Row, Col, List, Card } from 'antd';
+// import {
+//     Radar, RadarChart, PolarGrid, Legend,
+//     PolarAngleAxis, PolarRadiusAxis
+// } from 'recharts';
+import { Button, Input, Row, Col } from 'antd';
 import * as net from "../utils/net";
 
 class StuWC extends Component {
@@ -53,7 +53,7 @@ class StuWC extends Component {
                 </Row>
                 <Row>
                     <Col span={20}>
-                        <img src={this.state.imgStr} />
+                        <img src={this.state.imgStr} alt="img" />
                     </Col>
                 </Row>
             </div>

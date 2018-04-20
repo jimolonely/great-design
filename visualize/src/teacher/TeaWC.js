@@ -77,15 +77,15 @@ class TeaWC extends Component {
                 <br />
                 <Row>
                     <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-                        <img src={this.state.bestStr} />
+                        <img src={this.state.bestStr} alt="best img" />
                     </Col>
                     <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-                        <img src={this.state.badStr} />
+                        <img src={this.state.badStr} alt="bad img" />
                     </Col>
                 </Row>
                 <Row>
                     <Col span={24}>
-                        <img src={this.state.imgStr} />
+                        <img src={this.state.imgStr} alt="img" />
                     </Col>
                 </Row>
             </div>

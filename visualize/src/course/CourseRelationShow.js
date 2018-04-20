@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Input, Button, Row, Col, List, Slider, Icon } from "antd";
+import { Button, Row, Col, List, Slider, Icon } from "antd";
 import ReactEcharts from 'echarts-for-react';
 import * as net from "../utils/net";
 

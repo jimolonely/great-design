@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import {
-    Radar, RadarChart, PolarGrid, Legend,
-    PolarAngleAxis, PolarRadiusAxis
-} from 'recharts';
-import { Button, Input, Row, Col, List, Card } from 'antd';
+// import {
+//     Radar, RadarChart, PolarGrid, Legend,
+//     PolarAngleAxis, PolarRadiusAxis
+// } from 'recharts';
+import { Button, Input, Row, Col, List } from 'antd';
 import * as net from "../utils/net";
 
 class Mark extends Component {
