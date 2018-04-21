@@ -299,10 +299,37 @@ def load_college_grades():
     return colleges, grades
 
 
+def sex_judge(c, d):
+    if c['sex'] == '女':
+        d['female'] = c.get('mean', 0)
+        d['f_count'] = c.get('count', 0)
+    else:
+        d['male'] = c.get('mean', 0)
+        d['m_count'] = c.get('count', 0)
+
+
+def back_data(cd, type, prop):
+    '''减少重复代码'''
+    arr = []
+    temp = dict()
+    for c in cd[type][prop]:
+        if c[type] in temp:
+            d = dict()
+            t = temp[c[type]]
+            sex_judge(c, d)
+            sex_judge(t, d)
+            d['name'] = c[type]
+            arr.append(d)
+        else:
+            temp[c[type]] = c
+    return arr
+
+
 def load_college_marks(college_code, grade):
     c = load_dumped_file(os.path.join(TEMP_COLLEGE_MARK_FILE_PATH, college_code + '_' + grade + '_mark.txt'))
     if c is None:
         return None
+    # all
     num = []
     stuNumName = ['all', 'good', 'bad', 'failed']
     num.append(c['stuNum'])
@@ -314,4 +341,24 @@ def load_college_marks(college_code, grade):
     re = dict()
     re['stuNum'] = num
 
+    # 星座
+    # {'name':'星座','female':xx.xx,'male':xx.xx,'f_count':xx,'m_count':xx}
+    re['constellationAvgMark'] = back_data(c, 'constellation', 'avgMark')
+
+    re['constellationGoodStuNum'] = back_data(c, 'constellation', 'goodStuNum')
+
+    re['constellationBadStuNum'] = back_data(c, 'constellation', 'badStuNum')
+
+    re['constellationFailStuNum'] = back_data(c, 'constellation', 'failStuNum')
+
+    # 省份
+    # {'name':'省份','female':xx.xx,'male':xx.xx,'f_count':xx,'m_count':xx}
+    re['provinceAvgMark'] = back_data(c, 'province', 'avgMark')
+
+    re['provinceGoodStuNum'] = back_data(c, 'province', 'goodStuNum')
+
+    re['provinceBadStuNum'] = back_data(c, 'province', 'badStuNum')
+
+    re['provinceFailStuNum'] = back_data(c, 'province', 'failStuNum')
+    
     return re

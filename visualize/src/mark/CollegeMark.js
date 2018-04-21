@@ -4,21 +4,11 @@ import {
 } from 'antd';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, Tooltip as RTooltip,
-    PieChart, Pie
+    PieChart, Pie, LineChart, Line
 } from 'recharts';
 import * as net from '../utils/net';
 
 const Option = Select.Option;
-
-const data2 = [
-    { name: 'Page A', uv: 4000, pv: 2400, amt: 2400 },
-    { name: 'Page B', uv: 3000, pv: 1398, amt: 2210 },
-    { name: 'Page C', uv: 2000, pv: 9800, amt: 2290 },
-    { name: 'Page D', uv: 2780, pv: 3908, amt: 2000 },
-    { name: 'Page E', uv: 1890, pv: 4800, amt: 2181 },
-    { name: 'Page F', uv: 2390, pv: 3800, amt: 2500 },
-    { name: 'Page G', uv: 3490, pv: 4300, amt: 2100 },
-];
 
 class CollegeMark extends Component {
 
@@ -31,7 +21,15 @@ class CollegeMark extends Component {
             collegeValue: '',
             gradeValue: '',
             stuNum: [],
-            avgMark: {}
+            avgMark: {},
+            constellationAvgMark: [],
+            constellationGoodStuNum: [],
+            constellationBadStuNum: [],
+            constellationFailStuNum: [],
+            provinceAvgMark: [],
+            provinceGoodStuNum: [],
+            provinceBadStuNum: [],
+            provinceFailStuNum: []
         }
         this.getCollege = this.getCollege.bind(this);
         this.getGrade = this.getGrade.bind(this);
@@ -82,9 +80,18 @@ class CollegeMark extends Component {
         var t = this;
         net.get("/mark/college/" + this.state.collegeValue + "/" + this.state.gradeValue,
             function (re) {
+                // console.log(re.data.data)
                 t.setState({
                     title: tip,
                     stuNum: re.data.data.stuNum,
+                    constellationAvgMark: re.data.data.constellationAvgMark,
+                    constellationGoodStuNum: re.data.data.constellationGoodStuNum,
+                    constellationBadStuNum: re.data.data.constellationBadStuNum,
+                    constellationFailStuNum: re.data.data.constellationFailStuNum,
+                    provinceAvgMark: re.data.data.provinceAvgMark,
+                    provinceGoodStuNum: re.data.data.provinceGoodStuNum,
+                    provinceBadStuNum: re.data.data.provinceBadStuNum,
+                    provinceFailStuNum: re.data.data.provinceFailStuNum,
                 })
             })
     }
@@ -138,18 +145,148 @@ class CollegeMark extends Component {
                 </Row>
                 <Row>
                     <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-                        <p></p>
-                    </Col>
-                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-                        <p></p>
+                        <p>星座平均分直方图</p>
+                        <BarChart width={800} height={300} data={this.state.constellationAvgMark}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <RTooltip />
+                            <Legend />
+                            <Bar dataKey="female" fill="#8884d8" />
+                            <Bar dataKey="male" fill="#82ca9d" />
+                        </BarChart>
                     </Col>
                 </Row>
                 <Row>
                     <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-                        <p></p>
+                        <p>星座人数分布直方图</p>
+                        <BarChart width={800} height={300} data={this.state.constellationAvgMark}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <RTooltip />
+                            <Legend />
+                            <Bar dataKey="f_count" fill="#8884d8" />
+                            <Bar dataKey="m_count" fill="#82ca9d" />
+                        </BarChart>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                        <p>星座好学生</p>
+                        <LineChart width={600} height={300} data={this.state.constellationGoodStuNum}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <RTooltip />
+                            <Legend />
+                            <Line type="monotone" dataKey="f_count" stroke="#8884d8" activeDot={{ r: 8 }} />
+                            <Line type="monotone" dataKey="m_count" stroke="#82ca9d" />
+                        </LineChart>
                     </Col>
                     <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-                        <p></p>
+                        <p>星座差学生</p>
+                        <LineChart width={600} height={300} data={this.state.constellationBadStuNum}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <RTooltip />
+                            <Legend />
+                            <Line type="monotone" dataKey="f_count" stroke="#8884d8" activeDot={{ r: 8 }} />
+                            <Line type="monotone" dataKey="m_count" stroke="#82ca9d" />
+                        </LineChart>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                        <p>星座挂科学生</p>
+                        <LineChart width={1000} height={300} data={this.state.constellationFailStuNum}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <RTooltip />
+                            <Legend />
+                            <Line type="monotone" dataKey="f_count" stroke="#8884d8" activeDot={{ r: 8 }} />
+                            <Line type="monotone" dataKey="m_count" stroke="#82ca9d" />
+                        </LineChart>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                        <p>省份平均分直方图</p>
+                        <BarChart width={800} height={300} data={this.state.provinceAvgMark}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <RTooltip />
+                            <Legend />
+                            <Bar dataKey="female" fill="#8884d8" />
+                            <Bar dataKey="male" fill="#82ca9d" />
+                        </BarChart>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                        <p>省份人数分布直方图</p>
+                        <BarChart width={1000} height={300} data={this.state.provinceAvgMark}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <RTooltip />
+                            <Legend />
+                            <Bar dataKey="f_count" fill="#8884d8" />
+                            <Bar dataKey="m_count" fill="#82ca9d" />
+                        </BarChart>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                        <p>省份好学生</p>
+                        <LineChart width={600} height={300} data={this.state.provinceGoodStuNum}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <RTooltip />
+                            <Legend />
+                            <Line type="monotone" dataKey="f_count" stroke="#8884d8" activeDot={{ r: 8 }} />
+                            <Line type="monotone" dataKey="m_count" stroke="#82ca9d" />
+                        </LineChart>
+                    </Col>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                        <p>省份差学生</p>
+                        <LineChart width={600} height={300} data={this.state.provinceBadStuNum}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <RTooltip />
+                            <Legend />
+                            <Line type="monotone" dataKey="f_count" stroke="#8884d8" activeDot={{ r: 8 }} />
+                            <Line type="monotone" dataKey="m_count" stroke="#82ca9d" />
+                        </LineChart>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                        <p>省份挂科学生</p>
+                        <LineChart width={1000} height={300} data={this.state.provinceFailStuNum}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <RTooltip />
+                            <Legend />
+                            <Line type="monotone" dataKey="f_count" stroke="#8884d8" activeDot={{ r: 8 }} />
+                            <Line type="monotone" dataKey="m_count" stroke="#82ca9d" />
+                        </LineChart>
                     </Col>
                 </Row>
                 <Row>
