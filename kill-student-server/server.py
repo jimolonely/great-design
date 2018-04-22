@@ -7,7 +7,7 @@ from api.course import Relation, Difficulty, CourseTeacherCompare, TeacherCourse
     ShowCourseRelation
 from api.student import StuToTeacherAdviceWordCloud
 from api.teacher import TeacherCourseAdviceWordCloud, TeacherAllAdviceWordCloud
-from api.mark import CollegeMarkInitData, CollegeMark
+from api.mark import CollegeMarkInitData, CollegeMark, SpecialityCluster
 
 errors = {
     'KeyError': {
@@ -37,6 +37,8 @@ api.add_resource(ShowCourseRelation, '/course/relation-show/complete-speciality'
 # mark
 api.add_resource(CollegeMarkInitData, '/mark/get_college_grades')
 api.add_resource(CollegeMark, '/mark/college/<college>/<grade>')
+api.add_resource(SpecialityCluster, '/mark/speciality_cluster/<grade>/<speciality_code>/<n_clusters>',
+                 '/mark/speciality_cluster/<grade>/<speciality_code>')
 
 if __name__ == '__main__':
     app.run(debug=True, port=8082, host='0.0.0.0')
