@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend
 } from 'recharts';
-import { Button, Input, Row, Col } from 'antd';
+import { Button, Input, Row, Col, Divider } from 'antd';
 import * as net from "../utils/net";
 
 
@@ -43,9 +43,7 @@ class CourseTeacherCompare extends Component {
         // );
         return (
             <div>
-                <Input placeholder="输入课程代码" onChange={this.onChange} />
-                <br />
-                <br />
+                <Input style={{ width: "50%" }} placeholder="输入课程代码" onChange={this.onChange} />&nbsp;
                 <Button type="primary" onClick={this.getData}>获取数据</Button>
                 <br />
                 <br />
@@ -110,4 +108,27 @@ class CourseTeacherCompare extends Component {
     }
 }
 
-export default CourseTeacherCompare;
+class TeacherCourseCompare extends Component {
+    render() {
+        return (
+            <div>
+                TODO
+            </div>
+        )
+    }
+}
+
+class CourseCompare extends Component {
+    render() {
+        return (
+            <div>
+                <Divider orientation="left">同一门课不同老师给分对比</Divider>
+                <CourseTeacherCompare />
+                <Divider orientation="left">同一老师不同课程给分对比</Divider>
+                <TeacherCourseCompare />
+            </div>
+        )
+    }
+}
+
+export default CourseCompare;
