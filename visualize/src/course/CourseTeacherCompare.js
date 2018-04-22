@@ -5,13 +5,14 @@ import {
 import { Button, Input, Row, Col, Divider } from 'antd';
 import * as net from "../utils/net";
 
+const TEACHER = 0, COURSE = 1;
 
 class CourseTeacherCompare extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            courseCode: "",
+            input: "",
             data: []
         }
         this.onChange = this.onChange.bind(this);
@@ -20,19 +21,28 @@ class CourseTeacherCompare extends Component {
 
     onChange(e) {
         this.setState({
-            courseCode: e.target.value
+            input: e.target.value
         });
     }
 
     getData() {
-        var t = this;
-        if (this.state.courseCode !== "") {
-            net.get('/course/teacher-compare/' + this.state.courseCode,
-                function (response) {
-                    t.setState({
-                        data: response.data.data,
-                    });
-                })
+        if (this.state.input !== "") {
+            var t = this;
+            if (this.props.type === COURSE) {
+                net.get('/course/teacher-compare/' + this.state.input,
+                    function (response) {
+                        t.setState({
+                            data: response.data.data,
+                        });
+                    })
+            } else if (this.props.type === TEACHER) {
+                net.get('/course/teacher-course-compare/' + this.state.input,
+                    function (response) {
+                        t.setState({
+                            data: response.data.data,
+                        });
+                    })
+            }
         }
     }
     render() {
@@ -43,7 +53,8 @@ class CourseTeacherCompare extends Component {
         // );
         return (
             <div>
-                <Input style={{ width: "50%" }} placeholder="输入课程代码" onChange={this.onChange} />&nbsp;
+                <Input style={{ width: "50%" }} placeholder={this.props.placeholder}
+                    onChange={this.onChange} />&nbsp;
                 <Button type="primary" onClick={this.getData}>获取数据</Button>
                 <br />
                 <br />
@@ -81,7 +92,7 @@ class CourseTeacherCompare extends Component {
                         <LineChart width={600} height={300} data={this.state.data} syncId="anyId"
                             margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                             <XAxis dataKey="name" />
-                            <YAxis label={{ value: '人数', angle: -90, position: 'insideLeft' }} />
+                            <YAxis label={{ value: '分数', angle: -90, position: 'insideLeft' }} />
                             <CartesianGrid strokeDasharray="3 3" />
                             <Tooltip />
                             <Legend />
@@ -108,24 +119,14 @@ class CourseTeacherCompare extends Component {
     }
 }
 
-class TeacherCourseCompare extends Component {
-    render() {
-        return (
-            <div>
-                TODO
-            </div>
-        )
-    }
-}
-
 class CourseCompare extends Component {
     render() {
         return (
             <div>
                 <Divider orientation="left">同一门课不同老师给分对比</Divider>
-                <CourseTeacherCompare />
+                <CourseTeacherCompare type={COURSE} placeholder="输入课程代码" />
                 <Divider orientation="left">同一老师不同课程给分对比</Divider>
-                <TeacherCourseCompare />
+                <CourseTeacherCompare type={TEACHER} placeholder="输入教师姓名" />
             </div>
         )
     }

@@ -110,7 +110,7 @@ class CourseTeacherCompare(Resource):
         # 构建返回集
         data = []
         for k in tea_final_mean_marks.keys():
-            d = {}
+            d = dict()
             d['name'] = k
             d['mean_mark'] = tea_final_mean_marks.get(k, 0)
             d['hang_rate'] = hang_rate.get(k, 0) * 100
@@ -156,6 +156,39 @@ class CourseTeacherCompare(Resource):
             rate[name] = sum(hang_list) / len(hang_list)
             std[name] = np.std(hang_list)
         return rate, std
+
+
+class TeacherCourseCompare(Resource):
+    '''计算一个老师的不同课程的均分,挂科率,高分率,波动性对比'''
+
+    def get(self, teacher_name):
+        sql = "select course_code,course_name,pmark,teacher \
+            from view_stu_course_mark where teacher='%s'" % teacher_name
+        df = load_pandas_df(sql)
+        if df.empty:
+            return Result(ok=False, msg="查无此老师数据")
+        g = df.groupby(['course_name'])
+        d_all = g.agg({'pmark': 'mean', 'course_code': 'count'}).rename(
+            columns={'pmark': 'mean', 'course_code': 'count'}).to_dict()
+        d_std = g.agg({'pmark': 'std'}).rename(columns={'pmark': 'std'}).to_dict()['std']
+        d_hang_count = df[df['pmark'] < 60].groupby('course_name').agg({'pmark': 'count'}).rename(
+            columns={'pmark': 'count'}).to_dict()['count']
+        d_high_count = df[df['pmark'] >= 85].groupby('course_name').agg({'pmark': 'count'}).rename(
+            columns={'pmark': 'count'}).to_dict()['count']
+
+        d_all_mean = d_all['mean']
+        d_all_count = d_all['count']
+        data = []
+        for course_name, cnt in d_all_count.items():
+            d = dict()
+            d['name'] = course_name
+            d['mean_mark'] = d_all_mean.get(course_name, 0)
+            d['hang_rate'] = (d_hang_count.get(course_name, 0) / cnt) * 100
+            d['high_rate'] = (d_high_count.get(course_name, 0) / cnt) * 100
+            d['stu_num'] = int(cnt)
+            d['mean_std'] = d_std.get(course_name, 0.0)
+            data.append(d)
+        return Result(data)
 
 
 temp = RunThread()
