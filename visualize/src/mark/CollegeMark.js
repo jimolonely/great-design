@@ -29,7 +29,11 @@ class CollegeMark extends Component {
             provinceAvgMark: [],
             provinceGoodStuNum: [],
             provinceBadStuNum: [],
-            provinceFailStuNum: []
+            provinceFailStuNum: [],
+            nationNameAvgMark: [],
+            nationNameGoodStuNum: [],
+            nationNameBadStuNum: [],
+            nationNameFailStuNum: []
         }
         this.getCollege = this.getCollege.bind(this);
         this.getGrade = this.getGrade.bind(this);
@@ -92,6 +96,10 @@ class CollegeMark extends Component {
                     provinceGoodStuNum: re.data.data.provinceGoodStuNum,
                     provinceBadStuNum: re.data.data.provinceBadStuNum,
                     provinceFailStuNum: re.data.data.provinceFailStuNum,
+                    nationNameAvgMark: re.data.data.nationNameAvgMark,
+                    nationNameGoodStuNum: re.data.data.nationNameGoodStuNum,
+                    nationNameBadStuNum: re.data.data.nationNameBadStuNum,
+                    nationNameFailStuNum: re.data.data.nationNameFailStuNum,
                 })
             })
     }
@@ -278,6 +286,64 @@ class CollegeMark extends Component {
                     <Col xs={24} sm={24} md={12} lg={12} xl={12}>
                         <p>省份挂科学生</p>
                         <LineChart width={1000} height={300} data={this.state.provinceFailStuNum}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <RTooltip />
+                            <Legend />
+                            <Line type="monotone" dataKey="f_count" stroke="#8884d8" activeDot={{ r: 8 }} />
+                            <Line type="monotone" dataKey="m_count" stroke="#82ca9d" />
+                        </LineChart>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                        <p>民族人数分布直方图</p>
+                        <BarChart width={1000} height={300} data={this.state.nationNameAvgMark}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <RTooltip />
+                            <Legend />
+                            <Bar dataKey="f_count" fill="#8884d8" />
+                            <Bar dataKey="m_count" fill="#82ca9d" />
+                        </BarChart>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                        <p>民族好学生</p>
+                        <LineChart width={600} height={300} data={this.state.nationNameGoodStuNum}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <RTooltip />
+                            <Legend />
+                            <Line type="monotone" dataKey="f_count" stroke="#8884d8" activeDot={{ r: 8 }} />
+                            <Line type="monotone" dataKey="m_count" stroke="#82ca9d" />
+                        </LineChart>
+                    </Col>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                        <p>民族差学生</p>
+                        <LineChart width={600} height={300} data={this.state.nationNameBadStuNum}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <RTooltip />
+                            <Legend />
+                            <Line type="monotone" dataKey="f_count" stroke="#8884d8" activeDot={{ r: 8 }} />
+                            <Line type="monotone" dataKey="m_count" stroke="#82ca9d" />
+                        </LineChart>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                        <p>民族挂科学生</p>
+                        <LineChart width={1000} height={300} data={this.state.nationNameFailStuNum}
                             margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                             <XAxis dataKey="name" />
                             <YAxis />

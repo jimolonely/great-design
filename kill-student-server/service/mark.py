@@ -320,8 +320,14 @@ def back_data(cd, type, prop):
             sex_judge(t, d)
             d['name'] = c[type]
             arr.append(d)
+            temp.pop(c[type])  # 移除,为后面把剩下的加入做准备
         else:
             temp[c[type]] = c
+    for k, v in temp.items():
+        d = dict()
+        sex_judge(v, d)
+        d['name'] = k
+        arr.append(d)
     return arr
 
 
@@ -360,5 +366,14 @@ def load_college_marks(college_code, grade):
     re['provinceBadStuNum'] = back_data(c, 'province', 'badStuNum')
 
     re['provinceFailStuNum'] = back_data(c, 'province', 'failStuNum')
-    
+
+    # 民族
+    # {'name':'民族','female':xx.xx,'male':xx.xx,'f_count':xx,'m_count':xx}
+    re['nationNameAvgMark'] = back_data(c, 'nation_name', 'avgMark')
+
+    re['nationNameGoodStuNum'] = back_data(c, 'nation_name', 'goodStuNum')
+
+    re['nationNameBadStuNum'] = back_data(c, 'nation_name', 'badStuNum')
+
+    re['nationNameFailStuNum'] = back_data(c, 'nation_name', 'failStuNum')
     return re
