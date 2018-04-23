@@ -131,7 +131,7 @@ class CalSpecialityRelationThread(threading.Thread):
     计算一个专业相关性的线程
     '''
 
-    def __init__(self, speciality_code, grade='2015', temp_file_dir='/tmp/'):
+    def __init__(self, speciality_code, grade='2014', temp_file_dir='/tmp/'):
         threading.Thread.__init__(self)
         self.speciality_code = speciality_code
         self.grade = grade
@@ -196,8 +196,16 @@ class CalSpecialityRelationThread(threading.Thread):
                 c = json.load(f)
                 return c
         except:
-            sql = "select DISTINCT(course_name),course_code from view_stu_course_mark where speciality_code='%s' and course_type='必'  \
-            and grade='%s'" % (self.speciality_code, self.grade)
+            # 这个包括所有课程
+            # sql = "select DISTINCT(course_name),course_code from view_stu_course_mark where speciality_code='%s' and course_type='必'  \
+            # and grade='%s'" % (self.speciality_code, self.grade)
+
+            # 这个只有专业相关课程
+            sql = "select t.Course_code as course_code,t.Course_name as course_name from train_plan_course t,train_plan_credit c " \
+                  "where t.Course_big_type_id=c.sid \
+                    and t.Grade='%s' and c.type_name like '%%专业%%'  and t.Speciality_code='%s'" % (
+                      self.grade, self.speciality_code)
+
             df = load_pandas_df(sql)
             d_records = df.to_dict('records')
             records = []
@@ -270,7 +278,7 @@ class CalSpecialityRelationThread(threading.Thread):
             nodeRecord[name]['edgeCount'] += 1
             nodeRecord[name]['probSum'] += prob
         else:
-            record = {}
+            record = dict()
             record['name'] = name
             record['edgeCount'] = 1
             record['probSum'] = prob
@@ -294,7 +302,7 @@ class CalSpecialityRelationThread(threading.Thread):
         links = []
         for slink in self.single_links:
             # 舍弃掉那些人数少的例子
-            if slink['total'] > 30:
+            if slink['total'] > 30 and slink['prob'] > 0.1:
                 link = dict()
                 link['source'] = slink['source']
                 link['target'] = slink['target']
