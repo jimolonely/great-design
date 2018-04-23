@@ -79,28 +79,36 @@ class SpecialityCluster(Resource):
         x:[[xxx],[xxx]]
         '''
         dd = self.load_mark_data()
-        m = dd.drop_duplicates(subset=['student_id', 'course_code']).groupby(['student_id', 'name'], as_index=False)[
-            'pmark'].apply(list)
-        md = m.to_dict()
-        marks = list(m)
+        gd = dd.drop_duplicates(subset=['student_id', 'course_code']).groupby(['student_id', 'name'], as_index=False)
+        cc = gd['course_name'].apply(list)
+        md = cc.to_dict()
+        marks = list(cc)
         cnt = [len(m) for m in marks]
-        most_len = next(iter(Counter(cnt)))
-        x = []
-        for a in marks:
-            if most_len > len(a):
-                s = most_len - len(a)
-                for i in range(s):
-                    a.append(60)
-            else:
-                a = a[:most_len]
-            x.append(a)
-        return x, md
+        most_len = max(set(cnt), key=cnt.count)
+        # 得到大多数同学都有的课程
+        course_names = []
+        for k, v in cc.iteritems():
+            if len(v) == most_len:
+                course_names = v
+                break
+        d_arr = dict()  # key存的是课程名,value是存放成绩的数组,这样竖着看就是一个学生的成绩列表了,也就是转置操作
+        for name, g in gd:
+            d_m = dict()
+            for i, row in g.iterrows():
+                d_m[row['course_name']] = row['pmark']
+            for c in course_names:
+                d_arr[c] = d_arr.get(c, [])
+                d_arr[c].append(d_m.get(c, 60))
+        courses = list(d_arr.keys())
+        mt = [arr for arr in d_arr.values()]
+        mt = np.transpose(mt)
+        return mt, md, courses
 
     def cluster(self):
         '''
         :return: {0(类别):{'stu':[人名..],'center':[中心分数]},1:...}
         '''
-        x, md = self.prepare_data()
+        x, md, courses = self.prepare_data()
         X = np.array(x)
         kmeans = KMeans(n_clusters=self.n_clusters).fit(X)
         cls_index = list(kmeans.labels_)
@@ -111,8 +119,9 @@ class SpecialityCluster(Resource):
             stu[cls_index[i]].append(keys[i][1])
         center = kmeans.cluster_centers_
         cls = {}
-        for i in range(3):
+        for i in range(self.n_clusters):
             cls[i] = dict()
             cls[i]['stu'] = stu[i]
             cls[i]['center'] = list(center[i])
+        cls['courses'] = courses
         return cls

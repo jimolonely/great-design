@@ -23,6 +23,7 @@ import CourseTeacherCompare from "./course/CourseTeacherCompare";
 import CourseRelationCompute from "./course/CourseRelationCompute";
 
 import CollegeMark from "./mark/CollegeMark";
+import SpecialityCluster from './mark/SpecialityCluster';
 
 const SubMenu = Menu.SubMenu;
 
@@ -72,6 +73,7 @@ class RouteApp extends Component {
               </SubMenu>
               <SubMenu title={<span><Icon type="line-chart" />Mark</span>}>
                 <Menu.Item key="mark-college"><Link to="/mark/college">学院成绩分析</Link></Menu.Item>
+                <Menu.Item key="mark-speciality-cluster"><Link to="/mark/speciality-cluster">专业聚类分析</Link></Menu.Item>
               </SubMenu>
             </Menu>
           </div>
@@ -90,6 +92,7 @@ class RouteApp extends Component {
             <Route exact path="/stu/job-analyze" component={StuJobAnalyze} />
             <Route exact path="/mark" component={Mark} />
             <Route exact path="/mark/college" component={CollegeMark} />
+            <Route exact path="/mark/speciality-cluster" component={SpecialityCluster} />
           </div>
         </div>
       </Router>
