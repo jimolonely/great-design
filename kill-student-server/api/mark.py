@@ -4,7 +4,7 @@ from flask_restful import Resource
 from sklearn.cluster import KMeans
 
 from util.dto import Result
-from service.mark import load_college_grades, load_college_marks
+from service.mark import load_meta_data, load_college_marks
 
 from util.data import load_data_by_sql, load_pandas_df
 
@@ -16,7 +16,7 @@ class CollegeMarkInitData(Resource):
         :return:
         '''
         re = dict()
-        re['colleges'], re['grades'] = load_college_grades()
+        re['colleges'], re['grades'], re['specialities'] = load_meta_data()
         return Result(re)
 
 
@@ -46,12 +46,12 @@ class SpecialityCluster(Resource):
 
     def get(self, grade, speciality_code, n_clusters=3):
         self.grade = grade
-        self.speciality_code = speciality_code
-        self.n_clusters = n_clusters
-        try:
-            return Result(self.cluster())
-        except Exception as e:
-            return Result(ok=False, msg=str(e))
+        self.speciality_code = speciality_code[speciality_code.find("_") + 1:]
+        self.n_clusters = int(n_clusters)
+        # try:
+        # except Exception as e:
+        #     return Result(ok=False, msg=str(e))
+        return Result(self.cluster())
 
     def load_course_code(self):
         '''加载专业相关的课程代码'''
@@ -66,6 +66,8 @@ class SpecialityCluster(Resource):
         sql = "select * from view_stu_course_mark where speciality_code='%s' and grade='%s'" % (
             self.speciality_code, self.grade)
         df = load_pandas_df(sql)
+        if df.empty:
+            raise Exception("无数据")
         # 选出了与专业相关的课程
         return df[df['course_code'].isin(self.load_course_code())]
 
@@ -106,22 +108,21 @@ class SpecialityCluster(Resource):
 
     def cluster(self):
         '''
-        :return: {0(类别):{'stu':[人名..],'center':[中心分数]},1:...}
+        :return: {0(类别):{'stu':[人名..],'center':[{'course_name': courses[j], 'center_mark': center[j]}...],1:...}
         '''
-        x, md, courses = self.prepare_data()
-        X = np.array(x)
+        X, md, courses = self.prepare_data()
         kmeans = KMeans(n_clusters=self.n_clusters).fit(X)
         cls_index = list(kmeans.labels_)
         keys = list(md)
-        stu = {}
+        stu = dict()
         for i in range(len(cls_index)):
             stu[cls_index[i]] = stu.get(cls_index[i], [])
             stu[cls_index[i]].append(keys[i][1])
         center = kmeans.cluster_centers_
-        cls = {}
+        cls = dict()
         for i in range(self.n_clusters):
             cls[i] = dict()
             cls[i]['stu'] = stu[i]
-            cls[i]['center'] = list(center[i])
-        cls['courses'] = courses
+            center_i = center[i]
+            cls[i]['center'] = [{'course_name': courses[j], 'center_mark': center_i[j]} for j in range(len(courses))]
         return cls

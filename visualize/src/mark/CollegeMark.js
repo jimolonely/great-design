@@ -43,7 +43,7 @@ class CollegeMark extends Component {
     componentWillMount() {
         if (this.state.colleges.length === 0) {
             var t = this;
-            net.get("/mark/get_college_grades", function (re) {
+            net.get("/mark/get_meta_data", function (re) {
                 console.log(re.data)
                 t.setState({
                     colleges: re.data.data.colleges.map(c => <Option key={c} value={c}>{c}</Option>),
@@ -57,13 +57,6 @@ class CollegeMark extends Component {
         this.setState({
             collegeValue: value
         })
-        // net.get("/mark/get_college_grades", function (re) {
-        //     console.log(re.data)
-        //     t.setState({
-        //         colleges: re.data.data.colleges.map(c => <Option key={c}>c</Option>),
-        //         grades: re.data.data.grades
-        //     })
-        // })
     }
 
     getGrade(value) {

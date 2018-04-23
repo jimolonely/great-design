@@ -35,7 +35,7 @@ api.add_resource(GetThreadState, '/course/relation-compute/get-state')
 api.add_resource(ShowCourseRelation, '/course/relation-show/complete-speciality',
                  '/course/relation-show/get-nodes-links')
 # mark
-api.add_resource(CollegeMarkInitData, '/mark/get_college_grades')
+api.add_resource(CollegeMarkInitData, '/mark/get_meta_data')
 api.add_resource(CollegeMark, '/mark/college/<college>/<grade>')
 api.add_resource(SpecialityCluster, '/mark/speciality_cluster/<grade>/<speciality_code>/<n_clusters>',
                  '/mark/speciality_cluster/<grade>/<speciality_code>')
