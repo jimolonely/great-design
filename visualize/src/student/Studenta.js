@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {
     Input, Button, Row, Col,
-    Progress, Tag
+    Progress, Tag, Divider
 } from 'antd';
 import {
     Radar, RadarChart, PolarGrid, Legend,
@@ -42,23 +42,40 @@ class Studenta extends Component {
     render() {
         return (
             <div>
-                <Row>
-                    <Col span={20}><Input placeholder="输入学号" onChange={this.onChange} /></Col>
-                    <Col span={4}><Button type="primary" onClick={this.getStudenta}>学生画像</Button></Col>
-                </Row>
+                <Input placeholder="输入学号" onChange={this.onChange} style={{ width: 200 }} />&nbsp;
+                    <Button type="primary" onClick={this.getStudenta}>学生画像</Button>
                 <br />
                 <Row type="flex" justify='center'>
-                    <Col>学生评分</Col>
-                </Row>
-                <Row type="flex" justify='center'>
-                    <Col>
-                        <div className="circle">100</div>
+                    <Col xs={24} sm={24} md={5} lg={5} xl={4}>
+                        <img alt="photo" src={require("../resources/meme.jpg")}
+                            style={{ width: 160, height: 200 }} />
                     </Col>
-                </Row>
-                <br />
-                <Row>
-                    <Col>
-                        <span>学生标签:</span>
+                    <Col xs={24} sm={24} md={5} lg={5} xl={5}>
+                        <ul style={{ padding: 10 }}>
+                            <li>学号:2014</li>
+                            <li>姓名:寂寞</li>
+                            <li>学院:信息</li>
+                            <li>专业:软件工程</li>
+                            <li>性别:男</li>
+                            <li>民族:汉族</li>
+                            <li>生日:1996-10-19</li>
+                            <li>状态:在读</li>
+                        </ul>
+                    </Col>
+                    <Col xs={24} sm={24} md={6} lg={6} xl={6}>
+                        <ul style={{ padding: 10 }}>
+                            <li>生源地:重庆</li>
+                            <li>老家:重庆合川</li>
+                            <li>党派:团员</li>
+                            <li>毕业高中:合川中学</li>
+                            <li>所在校区:犀浦</li>
+                            <li>高考分数:600</li>
+                            <li>手机号:100010</li>
+                            <li>邮箱:sadasd@qq.com</li>
+                        </ul>
+                    </Col>
+                    <Col xs={24} sm={24} md={8} lg={8} xl={9}>
+                        <p>学生标签:</p>
                         <Tag color="magenta">好学生</Tag>
                         <Tag color="red">游戏迷</Tag>
                         <Tag color="volcano">高智商</Tag>
@@ -68,22 +85,25 @@ class Studenta extends Component {
                         <Tag color="green">班委</Tag>
                         <Tag color="cyan">运动爱好者</Tag>
                         <Tag color="blue">bulabula</Tag>
+                        <br />
+                        <br />
+                        <span>学生综合评分:</span>
+                        <div className="circle">99</div>
                     </Col>
                 </Row>
                 <br />
                 <Row>
                     <Col>
-                        <p>达到毕业资格百分比:
+                        <p>达到毕业资格百分比:</p>
                         <Progress percent={75} />
-                        </p>
                     </Col>
                 </Row>
                 <br />
                 <Row>
                     <Col span={12}>
                         <p>评分维度详细信息:</p>
-                        <br/>
-                        <br/>
+                        <br />
+                        <br />
                         <p>综合排名均值:5/110</p>
                         <p>排名趋势:上升/下降/平稳</p>
                         <p>挂科情况:无</p>

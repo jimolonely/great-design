@@ -1,12 +1,12 @@
 .circle {
     width: 200px;
-    height: 200px;
-    border-radius: 50%;
+    height: 80px;
+    border-radius: 30%;
     font-size: 50px;
     color: #fff;
-    line-height: 200px;
+    line-height: 80px;
     text-align: center;
     background: #28b7e2;
-    -webkit-border-radius: 50%;
-    -moz-border-radius: 50%;
+    -webkit-border-radius: 30%;
+    -moz-border-radius: 30%;
 }
