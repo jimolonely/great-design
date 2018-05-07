@@ -1,13 +1,16 @@
-from flask import Flask
+from flask import Flask, abort, jsonify, request
 from flask_cors import CORS
 from flask_restful import Api
 
 from api.course import Relation, Difficulty, CourseTeacherCompare, TeacherCourseCompare, \
     RelationCompute, GetThreadState, \
     ShowCourseRelation
+from api.mark import CollegeMarkInitData, CollegeMark, SpecialityCluster
 from api.student import StuToTeacherAdviceWordCloud
 from api.teacher import TeacherCourseAdviceWordCloud, TeacherAllAdviceWordCloud
-from api.mark import CollegeMarkInitData, CollegeMark, SpecialityCluster
+from util.dto import Result
+
+# from api.common import LoginFail
 
 errors = {
     'KeyError': {
@@ -20,6 +23,8 @@ errors = {
 app = Flask(__name__)
 api = Api(app, errors=errors)
 CORS(app)
+
+# api.add_resource(LoginFail, '/login')
 
 api.add_resource(StuToTeacherAdviceWordCloud, '/fun/<stuId>')
 api.add_resource(TeacherCourseAdviceWordCloud, '/teacher/wc/<teacher_name>/<course_name>')
@@ -39,6 +44,14 @@ api.add_resource(CollegeMarkInitData, '/mark/get_meta_data')
 api.add_resource(CollegeMark, '/mark/college/<college>/<grade>')
 api.add_resource(SpecialityCluster, '/mark/speciality_cluster/<grade>/<speciality_code>/<n_clusters>',
                  '/mark/speciality_cluster/<grade>/<speciality_code>')
+
+
+@app.before_request
+def authenticate():
+    args = request.args
+    print(args)
+    abort(jsonify(Result(ok=False, msg="login failed")))
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=8082, host='0.0.0.0')
