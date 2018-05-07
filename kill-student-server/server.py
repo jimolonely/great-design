@@ -48,9 +48,10 @@ api.add_resource(SpecialityCluster, '/mark/speciality_cluster/<grade>/<specialit
 
 @app.before_request
 def authenticate():
-    args = request.args
-    print(args)
-    abort(jsonify(Result(ok=False, msg="login failed")))
+    pass
+    # args = request.args
+    # print(args)
+    # abort(jsonify(Result(ok=False, msg="login failed")))
 
 
 if __name__ == '__main__':

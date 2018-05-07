@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import {
-    Button, AutoComplete, Divider, Row, Col, Select, message,
+    Button, Divider, Select, message,
     InputNumber, Card
 } from 'antd';
 import {
-    ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, Legend,
+    XAxis, YAxis, CartesianGrid, Tooltip, Legend,
     Line, LineChart,
 } from 'recharts';
 import * as net from "../utils/net";
@@ -84,7 +84,7 @@ class SpecialityCluster extends Component {
                         data.push(a);
                     }
                     var cards = [];
-                    for (var c = 0; c < t.state.nClusters; c++) {
+                    for (c = 0; c < t.state.nClusters; c++) {
                         var color = getRandomColor()
                         // g.push(<Scatter key={c} name={'cls' + c} data={d[c].center} fill={color} />);
                         g.push(<Line key={c} type="monotone" dataKey={"cls" + c} stroke={color} />)

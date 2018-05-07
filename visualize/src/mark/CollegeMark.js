@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-    Button, AutoComplete, Divider, Row, Col, Select
+    Button, Divider, Row, Col, Select
 } from 'antd';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, Tooltip as RTooltip,
@@ -109,6 +109,7 @@ class CollegeMark extends Component {
                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}>
                     {this.state.colleges}
                 </Select>
+                &nbsp;
                 <Select
                     showSearch
                     style={{ width: 200 }}

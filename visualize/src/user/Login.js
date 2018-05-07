@@ -31,7 +31,7 @@ class Login extends Component {
             <div id="login-form">
                 <Row type="flex" justify='center'>
                     <Col >
-                        <h2>学生成绩分析系统</h2>
+                        <h2>基于学生成绩数据的分析系统</h2>
                     </Col>
                 </Row>
                 <Row type="flex" justify='center'>
