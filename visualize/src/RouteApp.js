@@ -6,6 +6,8 @@ import {
   Link
 } from 'react-router-dom';
 import App from './App';
+import Login from './user/Login';
+
 import Course from './course/Course';
 import Mark from './student/Mark';
 
@@ -79,6 +81,7 @@ class RouteApp extends Component {
           </div>
           <div style={{ padding: '20px' }}>
             <Route exact path="/" component={App} />
+            <Route exact path="/login" component={Login} />
             <Route exact path="/course" component={Course} />
             <Route exact path="/course/tworelation" component={TwoCourseRelation} />
             <Route exact path="/course/relation-show" component={CourseRelationShow} />

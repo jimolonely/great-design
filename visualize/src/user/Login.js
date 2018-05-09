@@ -8,6 +8,7 @@ import {
 // } from 'recharts';
 // import * as net from "../utils/net";
 import './Login.css';
+import App from '../App';
 
 const FormItem = Form.Item;
 
@@ -22,6 +23,7 @@ class Login extends Component {
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 console.log('Received values of form: ', values);
+                window.location.href = "/";
             }
         });
     }
@@ -61,6 +63,7 @@ class Login extends Component {
                     </Col>
                 </Row>
             </div>
+
         )
     }
 }
