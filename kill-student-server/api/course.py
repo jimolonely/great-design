@@ -36,6 +36,7 @@ class Difficulty(Resource):
         df = load_pandas_df(sql)
         if df.empty:
             return Result(ok=False, msg='无此课程')
+        course_name = df.iloc[0]['course_name']
         mean_mark = self.get_group_key_value(df.groupby('grade'), 'mean')
         # 计算挂科率
         fail_cnt = self.get_group_key_value(df[df.mark < 60.0].groupby('grade'), 'count')
@@ -45,14 +46,20 @@ class Difficulty(Resource):
             hang_rate[k] = fail_cnt.get(k, 0) / normal_cnt[k]
         # 封装数据
         # [{year:'2018',mean_mark:70,hang_rate:20%},...]
+        re = dict()
         data = []
+        mark = []
         for k in mean_mark.keys():
             d = {}
             d['year'] = k
             d['mean_mark'] = mean_mark.get(k, 0)
             d['hang_rate'] = hang_rate.get(k, 0) * 100
             data.append(d)
-        return Result(data)
+            mark.append(1 - mean_mark.get(k, 0) / 100 + hang_rate.get(k, 0))
+        re['data'] = data
+        re['mark'] = float(np.sum(mark) / (2 * len(mean_mark))) * 100
+        re['course'] = course_name
+        return Result(re)
 
     def get_group_key_value(self, g, func):
         keys = list(g.groups.keys())
@@ -108,6 +115,7 @@ class CourseTeacherCompare(Resource):
         '''
 
         # 构建返回集
+        re = dict()
         data = []
         for k in tea_final_mean_marks.keys():
             d = dict()
@@ -120,7 +128,9 @@ class CourseTeacherCompare(Resource):
             d['high_std'] = high_std.get(k, 0.0)
             d['mean_std'] = mean_std.get(k, 0.0)
             data.append(d)
-        return Result(data)
+        re['data'] = data
+        re['course'] = df.iloc[0]['course_name']
+        return Result(re)
 
     def cal_my_rate(self, part_dict, all_dict):
         '''
@@ -188,7 +198,10 @@ class TeacherCourseCompare(Resource):
             d['stu_num'] = int(cnt)
             d['mean_std'] = d_std.get(course_name, 0.0)
             data.append(d)
-        return Result(data)
+        re = dict()
+        re['data'] = data
+        re['course'] = df.iloc[0]['teacher']
+        return Result(re)
 
 
 temp = RunThread()

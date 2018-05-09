@@ -68,8 +68,9 @@ class SpecialityCluster extends Component {
         } else {
             console.log(this.state.nClusters)
             var t = this;
+            var spec = this.state.specialityValue.substr(this.state.specialityValue.lastIndexOf('_') + 1)
             net.get("/mark/speciality_cluster/" + this.state.gradeValue + "/" +
-                this.state.specialityValue + "/" + this.state.nClusters,
+                spec + "/" + this.state.nClusters,
                 function (re) {
                     var d = re.data.data;
                     var g = [];
@@ -135,7 +136,7 @@ class SpecialityCluster extends Component {
                 />
                 &nbsp;
                 <Button type="primary" onClick={this.onSearch}>分析聚类</Button>
-                <Divider orientation="left">hehe</Divider>
+                <Divider orientation="left">分类的课程成绩中心图</Divider>
                 {/* <ScatterChart width={600} height={400} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
                     <XAxis dataKey={'course_name'} name='课程名称' unit='' />
                     <YAxis type="number" dataKey={'center_mark'} name='中心分数' unit='' />

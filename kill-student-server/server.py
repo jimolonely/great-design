@@ -1,4 +1,4 @@
-from flask import Flask, abort, jsonify, request
+from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
 
@@ -6,9 +6,8 @@ from api.course import Relation, Difficulty, CourseTeacherCompare, TeacherCourse
     RelationCompute, GetThreadState, \
     ShowCourseRelation
 from api.mark import CollegeMarkInitData, CollegeMark, SpecialityCluster
-from api.student import StuToTeacherAdviceWordCloud
+from api.student import StuToTeacherAdviceWordCloud, StuFailPredict
 from api.teacher import TeacherCourseAdviceWordCloud, TeacherAllAdviceWordCloud
-from util.dto import Result
 
 # from api.common import LoginFail
 
@@ -27,6 +26,8 @@ CORS(app)
 # api.add_resource(LoginFail, '/login')
 
 api.add_resource(StuToTeacherAdviceWordCloud, '/fun/<stuId>')
+api.add_resource(StuFailPredict, '/stu/get-undo-course/<stu_id>')
+
 api.add_resource(TeacherCourseAdviceWordCloud, '/teacher/wc/<teacher_name>/<course_name>')
 api.add_resource(TeacherAllAdviceWordCloud, '/teacher/wc/<teacher_name>')
 

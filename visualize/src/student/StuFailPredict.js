@@ -7,7 +7,7 @@ import {
 //     Radar, RadarChart, PolarGrid, Legend,
 //     PolarAngleAxis //, PolarRadiusAxis
 // } from 'recharts';
-// import * as net from "../utils/net";
+import * as net from "../utils/net";
 
 const gridStyle = {
     width: '10%',
@@ -37,8 +37,12 @@ class StuFailPredict extends Component {
             checkedList: [],
             indeterminate: true,
             checkAll: false,
+            stuId: '',
+            undoCourse: [],
         }
         this.onCheckChange = this.onCheckChange.bind(this);
+        this.getUndoCourse = this.getUndoCourse.bind(this);
+        this.onStuIdChange = this.onStuIdChange.bind(this);
     }
 
     onCheckChange(e) {
@@ -52,26 +56,45 @@ class StuFailPredict extends Component {
     }
 
     onCourseCheckChange = (checkedList) => {
+        var undoCourse = this.state.undoCourse;
         this.setState({
             checkedList,
-            indeterminate: !!checkedList.length && (checkedList.length < plainOptions.length),
-            checkAll: checkedList.length === plainOptions.length,
+            indeterminate: !!checkedList.length && (checkedList.length < undoCourse.length),
+            checkAll: checkedList.length === undoCourse.length,
         });
     }
 
     onCheckAllChange = (e) => {
+        var undoCourse = this.state.undoCourse;
         this.setState({
-            checkedList: e.target.checked ? plainOptions : [],
+            checkedList: e.target.checked ? undoCourse : [],
             indeterminate: false,
             checkAll: e.target.checked,
         });
     }
 
+    onStuIdChange(e) {
+        this.setState({
+            stuId: e.target.value
+        })
+    }
+
+    getUndoCourse() {
+        var t = this;
+        if (this.state.stuId.trim() !== "") {
+            net.get("/stu/get-undo-course/" + this.state.stuId, function (re) {
+                t.setState({
+                    undoCourse: re.data.data
+                })
+            })
+        }
+    }
+
     render() {
         return (
             <div>
-                <Input placeholder="输入学号" onChange={this.onChange} style={{ width: 200 }} />&nbsp;
-                    <Button type="primary" onClick={this.getStudenta}>未修课程查询</Button> &nbsp;
+                <Input required placeholder="输入学号" onChange={this.onStuIdChange} style={{ width: 200 }} />&nbsp;
+                    <Button type="primary" onClick={this.getUndoCourse}>未修课程查询</Button> &nbsp;
                     <Tooltip title="选择降维可以根据实际输入维度,提高预测准确度">
                     <Checkbox
                         checked={this.state.checked}
@@ -95,7 +118,7 @@ class StuFailPredict extends Component {
                         Check all
                     </Checkbox>
                     <br />
-                    <CheckboxGroup options={plainOptions} value={this.state.checkedList}
+                    <CheckboxGroup options={this.state.undoCourse} value={this.state.checkedList}
                         onChange={this.onCourseCheckChange} />
                 </Card>
                 <Card title="预测结果展示" bordered={false}>

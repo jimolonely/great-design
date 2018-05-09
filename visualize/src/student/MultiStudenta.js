@@ -30,6 +30,12 @@ class MultiStudenta extends Component {
                 { value: 40, name: '四川' },
                 { value: 12, name: '云南' },
             ],
+            constellation: [
+                { value: 3, name: '射手座' },
+                { value: 12, name: '双鱼座' },
+                { value: 10, name: '天蝎座' },
+                { value: 20, name: '天秤座' },
+            ],
         }
         this.getPieOption = this.getPieOption.bind(this);
     }
@@ -39,7 +45,7 @@ class MultiStudenta extends Component {
             // backgroundColor: '#2c343c',
 
             title: {
-                text: '人数分布',
+                text: title,
                 left: 'center',
                 top: 20,
                 textStyle: {
@@ -113,7 +119,7 @@ class MultiStudenta extends Component {
                             <ReactEcharts option={this.getPieOption('地区分布', this.state.province)} />
                         </Col>
                         <Col xs={24} sm={24} md={8} lg={8} xl={8}>
-                            <ReactEcharts option={this.getPieOption('星座分布', this.state.province)} />
+                            <ReactEcharts option={this.getPieOption('星座分布', this.state.constellation)} />
                         </Col>
                     </Row>
                     <Row>
