@@ -2,17 +2,15 @@ from datetime import datetime
 
 import numpy as np
 from flask_restful import Resource, request
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
 
-from util.data import load_data_by_uri, load_pandas_df
+from util.data import load_data_by_uri, load_pandas_df, load_data_by_sql
 from util.dto import Result
 from util.useful import txt_to_word_cloud_imgstr
 
-from sklearn.feature_selection import SelectKBest
-from sklearn.feature_selection import chi2
-from sklearn.tree import DecisionTreeClassifier
-from sklearn import tree
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
+from wordcloud import WordCloud
 
 
 class StuToTeacherAdviceWordCloud(Resource):
@@ -188,3 +186,82 @@ class StuFailPredict(Resource):
             d['prob'] = acc * 100
             re.append(d)
         return Result(re)
+
+
+class Studenta(Resource):
+    def get(self, stu_id):
+        # 查询基本信息
+        sql = "select student_id,name,sex,grade,college_name,speciality_name,nation_name,CONVERT(VARCHAR,birthday,23) " \
+              "as birthday,state_type,party,family_address,student_mobilephone, graduation_school,rewards_punish,rid_region," \
+              "individual_love,email,school_area,enrollment_mark from " \
+              "view_student_full_info where student_id='%s'" % (stu_id)
+        stu = load_data_by_sql(sql)
+        if len(stu) == 0:
+            return Result(ok=False, msg="查无此人")
+        stu = stu[0]
+
+        # 先暂时不自己计算绩点
+        sql = "select top 1 avg,gpa,order_num,speciality_num from exam_mark_rank_student where " \
+              "student_id='%s' order by add_time desc" % stu_id
+        marks = load_data_by_sql(sql)
+        if len(marks) == 0:
+            return Result(ok=False, msg="学分绩点出错")
+        marks = marks[0]
+
+        # 构造雷达图数据
+        r_mark = self.get_radar_data(marks)
+
+        # 查成绩波动图
+        sql = "select course_name,pmark,course_type from view_stu_course_mark where student_id='%s' order by term_order" % stu_id
+        df_mark = load_pandas_df(sql)
+        df_mark = df_mark.drop_duplicates(subset='course_name')
+        cn = df_mark['course_name'].values
+        pm = df_mark.pmark.values
+        mark_list = [{'course': cn[i], 'mark': pm[i]} for i in range(len(cn))]
+
+        re = dict()
+        re['basicInfo'] = stu
+        re['mark'] = marks
+        re['radarData'] = r_mark
+        re['markList'] = mark_list
+        re['courseCondition'] = self.course_judge(df_mark)
+        return Result(re)
+
+    def course_judge(self, df_mark):
+        '''
+        课程情况
+        :param df_mark:
+        :return:
+        '''
+        wd = WordCloud(font_path="/home/jimo/workspace/Git/great-design/kill-student-server/resource/SimHei.ttf")
+        good = " ".join(df_mark[df_mark['course_type'] == '必'].sort_values(by=['pmark'], ascending=False).head()[
+                            'course_name'].values)
+        good_course = ", ".join(wd.process_text(good).keys())
+        bad = " ".join(df_mark.sort_values(by=['pmark']).head()['course_name'].values)
+        bad_course = ", ".join(wd.process_text(bad).keys())
+        text = " ".join(df_mark[df_mark['course_type'] == '选']['course_name'].values)
+        option_course = ", ".join(wd.process_text(text).keys())
+        d = dict()
+        d['good'] = good_course
+        d['bad'] = bad_course
+        d['option'] = option_course
+        return d
+
+    def get_radar_data(self, marks):
+        r_mark = []
+        d = dict()
+        d['subject'] = '平均分'
+        d['v'] = marks['avg']
+        d['fullMark'] = 100
+        r_mark.append(d)
+        d = dict()
+        d['subject'] = '绩点'
+        d['v'] = marks['gpa'] / 4 * 100
+        d['fullMark'] = 100
+        r_mark.append(d)
+        d = dict()
+        d['subject'] = '排名'
+        d['v'] = (1 - marks['order_num'] / marks['speciality_num']) * 100
+        d['fullMark'] = 100
+        r_mark.append(d)
+        return r_mark

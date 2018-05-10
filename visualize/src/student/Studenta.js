@@ -8,7 +8,7 @@ import {
     PolarAngleAxis //, PolarRadiusAxis
     , LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip
 } from 'recharts';
-// import * as net from "../utils/net";
+import * as net from "../utils/net";
 import './Studenta.css';
 
 const data = [
@@ -40,7 +40,12 @@ class Studenta extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            stuId: ''
+            stuId: '',
+            basicInfo: {},
+            mark: {},
+            radarData: [],
+            markList: [],
+            courseCondition: {},
         }
         this.onChange = this.onChange.bind(this);
         this.getStudenta = this.getStudenta.bind(this);
@@ -53,7 +58,18 @@ class Studenta extends Component {
     }
 
     getStudenta() {
-
+        var t = this;
+        if (t.state.stuId.trim() !== "") {
+            net.get("/stu/studenta/" + t.state.stuId, function (re) {
+                t.setState({
+                    basicInfo: re.data.data.basicInfo,
+                    mark: re.data.data.mark,
+                    radarData: re.data.data.radarData,
+                    markList: re.data.data.markList,
+                    courseCondition: re.data.data.courseCondition,
+                })
+            })
+        }
     }
 
     render() {
@@ -69,26 +85,26 @@ class Studenta extends Component {
                     </Col>
                     <Col xs={24} sm={24} md={5} lg={5} xl={5}>
                         <ul style={{ padding: 10 }}>
-                            <li>学号:2014</li>
-                            <li>姓名:寂寞</li>
-                            <li>学院:信息</li>
-                            <li>专业:软件工程</li>
-                            <li>性别:男</li>
-                            <li>民族:汉族</li>
-                            <li>生日:1996-10-19</li>
-                            <li>状态:在读</li>
+                            <li>学号: {this.state.basicInfo.student_id}</li>
+                            <li>姓名: {this.state.basicInfo.name}</li>
+                            <li>学院: {this.state.basicInfo.college_name}</li>
+                            <li>专业: {this.state.basicInfo.speciality_name}</li>
+                            <li>性别: {this.state.basicInfo.sex}</li>
+                            <li>民族: {this.state.basicInfo.nation_name}</li>
+                            <li>生日: {this.state.basicInfo.birthday}</li>
+                            <li>状态: {this.state.basicInfo.state_type}</li>
                         </ul>
                     </Col>
                     <Col xs={24} sm={24} md={6} lg={6} xl={6}>
                         <ul style={{ padding: 10 }}>
-                            <li>生源地:重庆</li>
-                            <li>老家:重庆合川</li>
-                            <li>党派:团员</li>
-                            <li>毕业高中:合川中学</li>
-                            <li>所在校区:犀浦</li>
-                            <li>高考分数:600</li>
-                            <li>手机号:100010</li>
-                            <li>邮箱:sadasd@qq.com</li>
+                            <li>生源地: {this.state.basicInfo.rid_region}</li>
+                            <li>老家: {this.state.basicInfo.family_address}</li>
+                            <li>党派: {this.state.basicInfo.party}</li>
+                            <li>毕业高中: {this.state.basicInfo.graduation_school}</li>
+                            <li>所在校区: {this.state.basicInfo.school_area}</li>
+                            <li>高考分数: {this.state.basicInfo.enrollment_mark}</li>
+                            <li>手机号: {this.state.basicInfo.student_mobilephone}</li>
+                            <li>邮箱: {this.state.basicInfo.email}</li>
                         </ul>
                     </Col>
                     <Col xs={24} sm={24} md={8} lg={8} xl={9}>
@@ -119,30 +135,30 @@ class Studenta extends Component {
                 <Card title="学习情况" bordered={false}>
                     <Row>
                         <Col xs={3} sm={3} md={3} lg={3} xl={3}>
-                            <p>平均分: 90</p>
-                            <p>绩点/GPA: 3.7</p>
-                            <p>专业排名: 5/117</p>
+                            <p>平均分: {this.state.mark.avg}</p>
+                            <p>绩点/GPA: {this.state.mark.gpa}</p>
+                            <p>专业排名: {this.state.mark.order_num}/{this.state.mark.speciality_num}</p>
                         </Col>
                         <Col xs={10} sm={10} md={10} lg={10} xl={10}>
                             <p>雷达图展示</p>
-                            <RadarChart width={400} height={200} data={data_mark}>
+                            <RadarChart width={400} height={200} data={this.state.radarData}>
                                 <PolarGrid />
                                 <PolarAngleAxis dataKey="subject" />
                                 {/* <PolarRadiusAxis domain={[0, 100]} /> */}
                                 <Legend />
-                                <Radar name="xx" dataKey="A" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
+                                <Radar name="" dataKey="v" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
                             </RadarChart>
                         </Col>
                         <Col xs={10} sm={10} md={10} lg={10} xl={10}>
                             <p>成绩波动图</p>
-                            <LineChart width={400} height={200} data={data2}
+                            <LineChart width={400} height={200} data={this.state.markList}
                                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                                <XAxis dataKey="name" />
+                                <XAxis dataKey="course" />
                                 <YAxis />
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <Tooltip />
                                 <Legend />
-                                <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
+                                <Line type="monotone" dataKey="mark" stroke="#82ca9d" />
                             </LineChart>
                         </Col>
                     </Row>
@@ -154,9 +170,9 @@ class Studenta extends Component {
                 <Row>
                     <Col xs={24} sm={24} md={8} lg={8} xl={8}>
                         <Card title="课程偏好" bordered={false}>
-                            <p>擅长课程: </p>
-                            <p>劣势课程: </p>
-                            <p>选课偏好: </p>
+                            <p><b>擅长课程:</b> {this.state.courseCondition.good}</p>
+                            <p><b>劣势课程:</b> {this.state.courseCondition.bad}</p>
+                            <p><b>选课偏好:</b> {this.state.courseCondition.option}</p>
                         </Card>
                     </Col>
                     <Col xs={24} sm={24} md={8} lg={8} xl={8}>
