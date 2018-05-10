@@ -37,12 +37,16 @@ class StuFailPredict extends Component {
             checkedList: [],
             indeterminate: true,
             checkAll: false,
+            dimNum: 0,
             stuId: '',
             undoCourse: [],
+            predictData: [],
         }
         this.onCheckChange = this.onCheckChange.bind(this);
         this.getUndoCourse = this.getUndoCourse.bind(this);
         this.onStuIdChange = this.onStuIdChange.bind(this);
+        this.onDataDimChange = this.onDataDimChange.bind(this);
+        this.predict = this.predict.bind(this);
     }
 
     onCheckChange(e) {
@@ -52,7 +56,16 @@ class StuFailPredict extends Component {
     }
 
     predict() {
-
+        var t = this;
+        net.post("/stu/fail-predict", {
+            dimNum: t.state.dimNum,
+            stuId: t.state.stuId,
+            courseList: t.state.checkedList
+        }, function (re) {
+            t.setState({
+                predictData: re.data.data
+            })
+        })
     }
 
     onCourseCheckChange = (checkedList) => {
@@ -71,6 +84,12 @@ class StuFailPredict extends Component {
             indeterminate: false,
             checkAll: e.target.checked,
         });
+    }
+
+    onDataDimChange(e) {
+        this.setState({
+            dimNum: e.target.value
+        })
     }
 
     onStuIdChange(e) {
@@ -101,13 +120,14 @@ class StuFailPredict extends Component {
                         onChange={this.onCheckChange}>数据降维处理</Checkbox></Tooltip>&nbsp;
                     <InputNumber
                     disabled={!this.state.checked}
-                    defaultValue={20}
+                    defaultValue={this.state.dimNum}
                     min={3}
                     max={100}
                     formatter={value => `${value}门课`}
                     parser={value => value.replace('门课', '')}
-                    onChange={this.getDataDim} /> &nbsp;
-                    <Button type="primary" onClick={this.predict}>预测</Button>
+                    onChange={this.onDataDimChange} /> &nbsp;
+                    <Button disabled={this.state.checkedList.length === 0}
+                    type="primary" onClick={this.predict}>预测</Button>
                 <br />
                 <Card title="该生未修课程-请选择课程然后点击[预测]按钮进行预测" bordered={false}>
                     <Checkbox
@@ -123,12 +143,14 @@ class StuFailPredict extends Component {
                 </Card>
                 <Card title="预测结果展示" bordered={false}>
                     <List
-                        grid={{ gutter: 16, xs: 1, sm: 4, md: 8, lg: 8, xl: 8, xxl: 10 }}
-                        dataSource={data}
+                        grid={{ gutter: 16, xs: 1, sm: 4, md: 6, lg: 6, xl: 6, xxl: 8 }}
+                        dataSource={this.state.predictData}
                         renderItem={item => (
                             <List.Item>
                                 <div style={{ background: item.bg, padding: "2px" }}>
-                                    课程{item.course}有{item.prob}%的概率{item.result}
+                                    课程: {item.course}<br />
+                                    概率: {item.prob}% <br />
+                                    结果: {item.result}
                                 </div>
                             </List.Item>
                         )}

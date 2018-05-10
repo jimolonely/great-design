@@ -26,7 +26,7 @@ CORS(app)
 # api.add_resource(LoginFail, '/login')
 
 api.add_resource(StuToTeacherAdviceWordCloud, '/fun/<stuId>')
-api.add_resource(StuFailPredict, '/stu/get-undo-course/<stu_id>')
+api.add_resource(StuFailPredict, '/stu/get-undo-course/<stu_id>', '/stu/fail-predict')
 
 api.add_resource(TeacherCourseAdviceWordCloud, '/teacher/wc/<teacher_name>/<course_name>')
 api.add_resource(TeacherAllAdviceWordCloud, '/teacher/wc/<teacher_name>')
