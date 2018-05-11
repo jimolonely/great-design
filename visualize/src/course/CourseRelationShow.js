@@ -68,11 +68,17 @@ class CourseRelationShow extends Component {
                     type: 'graph',
                     name: "课程关系图",
                     layout: 'force',
+                    edgeSymbol: ['arrow'],
                     categories: [
                         {
                             name: '交通运输'
                         }
                     ],
+                    emphasis: {
+                        lineStyle: {
+                            width: 10
+                        }
+                    },
                     label: {
                         show: true,
                         position: 'inside',

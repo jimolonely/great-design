@@ -74,7 +74,7 @@ class RouteApp extends Component {
                 {/* <Menu.Item key="course-rank"><Link to="/course">课程排行榜 </Link></Menu.Item> */}
               </SubMenu>
               <SubMenu title={<span><Icon type="line-chart" />Mark</span>}>
-                <Menu.Item key="mark-college"><Link to="/mark/college">学院成绩分析</Link></Menu.Item>
+                <Menu.Item key="mark-college"><Link to="/mark/college">成绩分析</Link></Menu.Item>
                 <Menu.Item key="mark-speciality-cluster"><Link to="/mark/speciality-cluster">专业聚类分析</Link></Menu.Item>
               </SubMenu>
             </Menu>

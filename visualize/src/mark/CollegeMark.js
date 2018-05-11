@@ -18,6 +18,7 @@ class CollegeMark extends Component {
             title: '看我',
             colleges: [],
             grades: [],
+            speciality: [],
             collegeValue: '',
             gradeValue: '',
             stuNum: [],
@@ -47,7 +48,8 @@ class CollegeMark extends Component {
                 console.log(re.data)
                 t.setState({
                     colleges: re.data.data.colleges.map(c => <Option key={c} value={c}>{c}</Option>),
-                    grades: re.data.data.grades.map(c => <Option key={c} value={c}>{c}</Option>)
+                    grades: re.data.data.grades.map(c => <Option key={c} value={c}>{c}</Option>),
+                    speciality: re.data.data.specialities.map(c => <Option key={c} value={c}>{c}</Option>)
                 })
             })
         }
@@ -108,6 +110,16 @@ class CollegeMark extends Component {
                     onSelect={this.getCollege}
                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}>
                     {this.state.colleges}
+                </Select>
+                &nbsp;
+                <Select
+                    showSearch
+                    style={{ width: 200 }}
+                    placeholder="请选择专业名称或代码"
+                    optionFilterProp="children"
+                    onSelect={this.getSpeciality}
+                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}>
+                    {this.state.speciality}
                 </Select>
                 &nbsp;
                 <Select
