@@ -182,9 +182,7 @@ class Studenta extends Component {
                     </Col>
                     <Col xs={24} sm={24} md={8} lg={8} xl={8}>
                         <Card title="就业情况" bordered={false}>
-                            <p>Card content</p>
-                            <p>Card content</p>
-                            <p>Card content</p>
+                            <p>再等等吧,学生还未就业!</p>
                         </Card>
                     </Col>
                 </Row>
