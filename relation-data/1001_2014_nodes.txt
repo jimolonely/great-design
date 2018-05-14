@@ -1,0 +1,1 @@
+[{"category": 0, "name": "机械制造技术基础", "symbolSize": 4.0}, {"category": 0, "name": "大学物理AⅠ", "symbolSize": 80.0}, {"category": 0, "name": "大学物理实验Ⅰ", "symbolSize": 80.0}, {"category": 0, "name": "物理化学A", "symbolSize": 80.0}, {"category": 0, "name": "无机及分析化学II", "symbolSize": 80.0}]

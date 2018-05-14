@@ -2,10 +2,12 @@ import json
 import math
 import threading
 import time
+import pyfpgrowth
+import os
 
-from util.config import TEMP_RELATION_FILE_PATH
+from util.config import TEMP_RELATION_FILE_PATH, TEMP_META_MARK_FILE_PATH
 from util.data import load_pandas_df
-from util.useful import dump_obj
+from util.useful import dump_obj, load_dumped_file
 
 
 def similar_of_two_course(course_code1, course_code2, speciality_code=None):
@@ -327,12 +329,11 @@ class RunThread():
     def __init__(self):
         self.threads = dict()
 
-    def start(self, codes):
+    def start(self):
         print("start")
-        for code in codes:
-            thread = CalSpecialityRelationThread(code, temp_file_dir=TEMP_RELATION_FILE_PATH)
-            thread.start()
-            self.threads[code] = thread
+        thread = CalRelation('2014')
+        thread.start()
+        self.threads['0'] = thread
 
     def stop(self):
         for thread in self.threads.values():
@@ -347,3 +348,175 @@ class RunThread():
         :return:
         '''
         return not len(self.threads) == 0
+
+
+class CalRelation(threading.Thread):
+    '''
+    通过关联规则计算专业课程相关性
+    '''
+
+    def __init__(self, grade):
+        threading.Thread.__init__(self)
+        self.grade = grade
+        self.time = time.time()
+        self.specialities = self.get_specialities()
+        self.is_run = True and self.process_unfinished()
+        self.curr = 0
+
+    def process_unfinished(self):
+        '''读取进度文件,返回是否完成'''
+        p = load_dumped_file(os.path.join(TEMP_RELATION_FILE_PATH, 'process.txt'))
+        if p is None or p['finish'] == False:
+            return True
+        return False
+
+    def get_specialities(self):
+        '''获得专业代码'''
+        return load_dumped_file(os.path.join(TEMP_META_MARK_FILE_PATH, 'speciality.txt'))
+
+    def write_process(self, code, name):
+        path = os.path.join(TEMP_RELATION_FILE_PATH, 'process.txt')
+        p = load_dumped_file(path)
+        if p is None:
+            p = dict()
+        p['process'] = self.curr * 1.0 / len(self.specialities)
+        p['finish'] = self.curr == self.specialities
+        p['time'] = p.get('time', 0) + (time.time() - self.time)
+        if name is not None:
+            names = p.get('names', [])
+            names.append({'name': name, 'code': code})
+            p['names'] = names
+        dump_obj(path, p)
+
+    def run(self):
+        for s in self.specialities:
+            self.curr += 1
+            if not self.is_run:
+                break
+            if not os.path.exists(
+                    os.path.join(TEMP_RELATION_FILE_PATH, s['speciality_code'] + '_' + self.grade + '_nodes.txt')):
+                try:
+                    self.cal_relation(s['speciality_code'], self.grade)
+                    self.write_process(s['speciality_code'], s['speciality_name'])
+                except Exception as e:
+                    print('error')
+        self.stop()
+
+    def stop(self):
+        self.write_process(None, None)
+        self.is_run = False
+
+    def cal_relation(self, speciality_code, grade):
+
+        sql = "select t.Course_code as course_code from train_plan_course t," \
+              "train_plan_credit c where t.Course_big_type_id=c.sid \
+        and t.Grade='%s' and c.type_name like '%%专业%%'  and t.Speciality_code='%s'" % (grade, speciality_code)
+        d1 = load_pandas_df(sql)
+        if d1.empty:
+            raise Exception()
+        code_s = d1['course_code'].tolist()
+
+        sql = "select student_id,course_name,course_code,pmark,mark,term_order from " \
+              "view_stu_course_mark where speciality_code='%s' and grade='%s'" % (speciality_code, grade)
+        df = load_pandas_df(sql)
+        if df.empty:
+            raise Exception()
+        # 选出了与专业相关的课程
+        dd = df[df['course_code'].isin(code_s)]
+        dd = dd.drop_duplicates(subset=['student_id', 'course_code'])
+
+        code = dd.groupby(['student_id'], as_index=False)['course_code'].apply(list)
+        mark = dd.groupby(['student_id'], as_index=False)['pmark'].apply(list)
+        d_mark = mark.to_dict()
+        d_code = code.to_dict()
+        transac = []
+        for k, cd in d_code.items():
+            mk = d_mark.get(k, [])
+            arr = []
+            for i in range(len(mk)):
+                if mk[i] >= 90:
+                    arr.append(cd[i] + '_2')
+                elif mk[i] < 65:
+                    arr.append(cd[i] + "_0")
+            transac.append(arr)
+
+        # 应用规则挖掘算法
+        hold = len(d_mark) * 0.1  # 支持度0.1
+        p = pyfpgrowth.find_frequent_patterns(transactions=transac, support_threshold=hold)
+        rules = pyfpgrowth.generate_association_rules(p, 0.7)
+
+        # 得到课程名和课程代码的关联,加上term_order,这里去重思想,按term_order最小的保留
+        cnts = dd[['course_code', 'course_name', 'term_order']].sort_values(by='term_order').drop_duplicates(
+            subset=['course_code', 'course_name'], keep='first')
+        names = cnts['course_name'].tolist()
+        codes = cnts['course_code'].tolist()
+        term = cnts['term_order'].tolist()
+        d_course_names = dict()
+        for i in range(len(codes)):
+            d_course_names[codes[i]] = {'name': names[i], 'term': term[i]}
+
+        # 把rules翻译成课程名
+        read_rule = []
+        for k, v in rules.items():
+            d = dict()
+            for post in v[0]:
+                post_item = d_course_names[post[:post.find('_')]]
+                post_item['type'] = '差' if post[post.find('_') + 1:] == '0' else '好'
+                d['post'] = post_item
+                pres = []
+                for pre in k:
+                    pre_item = d_course_names[pre[:pre.find('_')]]
+                    if pre_item['term'] < post_item['term']:
+                        continue
+                    pre_item['type'] = '差' if pre[pre.find('_') + 1:] == '0' else '好'
+                    pres.append(pre_item)
+                if len(pres) == 0:
+                    continue
+                d['pre'] = pres
+                d['prob'] = v[1]
+                read_rule.append(d)
+
+        # 转化成可读形式,给用户看
+        rule_str = []
+        s_d = set()  # 去重
+        for r in read_rule:
+            s = []
+            post = r['post']['name'] + ' ' + r['post']['type']
+            pre = ''
+            for p in r['pre']:
+                pre += p['name'] + ' ' + p['type']
+            if post + pre not in s_d:
+                s.append(pre)
+                s_d.add(post + pre)
+                s.append("==>")
+                s.append(post)
+                s.append('的可信度为: ' + str(r['prob']))
+                # print(" ".join(s))
+                rule_str.append(" ".join(s))
+
+        # 将read_rule变成nodes links结构
+        d_size = dict()
+        links = []
+        for r in read_rule:
+            d = dict()
+            post = r['post']
+            for pre in r['pre']:
+                prob = r['prob'] if pre['type'] == post['type'] else 0.1 * r['prob']
+                d_size[pre['name']] = d_size.get(pre['name'], 0) + prob
+                # d_size[post['name']] = d_size.get(post['name'], 0) + prob
+                d['source'] = pre['name']
+                d['target'] = post['name']
+                links.append(d)
+        nodes = []
+        for k, p in d_size.items():
+            d = dict()
+            d['category'] = 0
+            d['name'] = k
+            d['symbolSize'] = p
+            nodes.append(d)
+
+        # 将结果写入文件
+        dump_obj(os.path.join(TEMP_RELATION_FILE_PATH, speciality_code + '_' + grade + '_links.txt'), links)
+        dump_obj(os.path.join(TEMP_RELATION_FILE_PATH, speciality_code + '_' + grade + '_nodes.txt'), nodes)
+        dump_obj(os.path.join(TEMP_RELATION_FILE_PATH, speciality_code + '_' + grade + '_read_rule.txt'), rule_str)
+        dump_obj(os.path.join(TEMP_RELATION_FILE_PATH, speciality_code + '_' + grade + '_rules.txt'), read_rule)

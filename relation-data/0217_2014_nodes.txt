@@ -1,0 +1,1 @@
+[{"category": 0, "name": "列车制动", "symbolSize": 1.0}, {"category": 0, "name": "列车牵引计算", "symbolSize": 1.0}]

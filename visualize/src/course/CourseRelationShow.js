@@ -1,8 +1,9 @@
 import React, { Component } from "react";
-import { Button, Row, Col, List, Slider, Icon } from "antd";
+import { Button, Row, Col, List, Slider, Icon, Select, Divider } from "antd";
 import ReactEcharts from 'echarts-for-react';
 import * as net from "../utils/net";
 
+const Option = Select.Option;
 
 class CourseRelationShow extends Component {
     constructor(props) {
@@ -21,6 +22,7 @@ class CourseRelationShow extends Component {
         this.updateMaxNodeSize = this.updateMaxNodeSize.bind(this);
         this.updateTopNodeNum = this.updateTopNodeNum.bind(this);
         this.updateGraphHeight = this.updateGraphHeight.bind(this);
+        this.getSpeciality = this.getSpeciality.bind(this);
     }
 
     componentDidMount() {
@@ -31,7 +33,7 @@ class CourseRelationShow extends Component {
         var t = this;
         net.get("/course/relation-show/complete-speciality", function (re) {
             t.setState({
-                speciality: re.data.data,
+                speciality: re.data.data.map(s => <Option key={s.code} value={s.code}>{s.name + "(" + s.code + ")"}</Option>),
                 currentCode: re.data.data[0].code
             });
         });
@@ -101,14 +103,6 @@ class CourseRelationShow extends Component {
         return option;
     }
 
-    viewGraph(item) {
-        console.log(item)
-        var t = this;
-        this.setState({
-            currentCode: item.code
-        }, t.updateNodeLinks())
-    }
-
     updateNodeLinks() {
         var t = this;
         net.post("/course/relation-show/get-nodes-links", {
@@ -142,9 +136,27 @@ class CourseRelationShow extends Component {
         })
     }
 
+    getSpeciality(v) {
+        this.setState({
+            currentCode: v
+        })
+    }
+
     render() {
         return (
             <div>
+                <Select
+                    showSearch
+                    style={{ width: 200 }}
+                    placeholder="请搜索专业名称或代码"
+                    optionFilterProp="children"
+                    onSelect={this.getSpeciality}
+                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}>
+                    {this.state.speciality}
+                </Select>
+                &nbsp;
+                <Button type="primary" onClick={this.updateNodeLinks}>查询课程关系图</Button>
+                <Divider>参数调节</Divider>
                 <Row>
                     <Col span={4}>最大节点大小</Col>
                     <Col span={20}>
@@ -177,20 +189,7 @@ class CourseRelationShow extends Component {
                 </Row>
                 <hr />
                 <Row>
-                    <Col span={6}>
-                        <List
-                            itemLayout="horizontal"
-                            dataSource={this.state.speciality}
-                            renderItem={
-                                item => (
-                                    <List.Item actions={[<a onClick={() => this.viewGraph(item)}>查看图谱</a>]}>
-                                        专业{item.code}共{item.courseNum}门课
-                                    </List.Item>
-                                )
-                            }
-                        />
-                    </Col>
-                    <Col span={18}>
+                    <Col>
                         <ReactEcharts option={this.getOption()} style={{ height: this.state.graphHeight + 'px' }} />
                     </Col>
                 </Row>

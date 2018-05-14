@@ -381,3 +381,5 @@ def load_college_marks(college_code, grade):
 
     re['nationNameFailStuNum'] = back_data(c, 'nation_name', 'failStuNum')
     return re
+
+

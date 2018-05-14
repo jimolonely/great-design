@@ -217,20 +217,14 @@ class RelationCompute(Resource):
         用于查询计算进度
         :return:
         '''
-        try:
-            processFiles = os.listdir(TEMP_RELATION_FILE_PATH)
-        except:
-            return Result(data=[])
-        result = []
-        for pf in processFiles:
-            if pf.find("process") != -1:
-                process = load_dumped_file(os.path.join(TEMP_RELATION_FILE_PATH, pf))
-                item = dict()
-                item['progress'] = process.get('beginIndex', 0) / process.get('endIndex', 1) * 100
-                item['name'] = process.get('specialityCode', '未知')
-                item['code'] = process.get('specialityCode', '未知')
-                item['time'] = process.get('timeSpend', 0)
-                result.append(item)
+        p = load_dumped_file(os.path.join(TEMP_RELATION_FILE_PATH, 'process.txt'))
+        if p is None:
+            p = {}
+        result = dict()
+        result['names'] = p.get('names', [])
+        result['time'] = p.get('time', 0)
+        result['process'] = p.get('process', 0) * 100
+        result['finish'] = p.get('finish', False)
         return Result(data=result)
 
     def post(self):
@@ -239,20 +233,15 @@ class RelationCompute(Resource):
         :return:
         '''
         # args: ImmutableMultiDict([('speciality_codes[0]', '12'), ('speciality_codes[1]', '34'), ('run', 'true')])
-        # {'speciality_codes[0]': '12', 'speciality_codes[1]': '34', 'run': 'true'}
         # args = request.form.to_dict()
         global temp
 
         args = request.form
         # 获取参数
         run = True if args['run'] == 'true' else False
-        codes = []
-        n = len(args) - 1
-        for i in range(n):
-            codes.append(args.get('speciality_codes[' + str(i) + ']', None))
 
         if run:
-            temp.start(codes)
+            temp.start()
         else:
             temp.stop()
         return Result(data="ok")
@@ -274,21 +263,13 @@ class ShowCourseRelation(Resource):
         从文件里获取计算好的专业nodes和links列表
         :return:[{
             code:'1010',
-            courseNum:100
+            name:''
         }]
         '''
-        try:
-            tempFiles = os.listdir(TEMP_RELATION_FILE_PATH)
-        except:
-            return Result(data=[])
-        result = []
-        for pf in tempFiles:
-            if pf.find("nodes") != -1:
-                nodes = load_dumped_file(os.path.join(TEMP_RELATION_FILE_PATH, pf))
-                item = dict()
-                item['courseNum'] = len(nodes)
-                item['code'] = pf[:pf.find("_")]
-                result.append(item)
+        p = load_dumped_file(os.path.join(TEMP_RELATION_FILE_PATH, 'process.txt'))
+        if p is None:
+            p = {}
+        result = p.get('names', [])
         return Result(data=result)
 
     def post(self):
@@ -305,8 +286,8 @@ class ShowCourseRelation(Resource):
         re['links'] = []
         re['originNodeNum'] = 0
         if code:
-            nodes = load_dumped_file(os.path.join(TEMP_RELATION_FILE_PATH, code + '_nodes.txt'))
-            links = load_dumped_file(os.path.join(TEMP_RELATION_FILE_PATH, code + '_links.txt'))
+            nodes = load_dumped_file(os.path.join(TEMP_RELATION_FILE_PATH, code + '_2014_nodes.txt'))
+            links = load_dumped_file(os.path.join(TEMP_RELATION_FILE_PATH, code + '_2014_links.txt'))
             re['originNodeNum'] = len(nodes)
             re['nodes'] = self.adjust_graph(nodes, top_node_num, max_node_size)
             re['links'] = links
@@ -321,7 +302,7 @@ class ShowCourseRelation(Resource):
         '''
         if len(nodes) == 0:
             return []
-        if top_node_num <= 0:
+        if top_node_num <= 1:
             top_node_num = len(nodes)
         # 找出最大的
         nodes = sorted(nodes, key=lambda n: n['symbolSize'], reverse=True)

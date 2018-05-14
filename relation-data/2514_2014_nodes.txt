@@ -1,0 +1,1 @@
+[{"category": 0, "name": "公共设施设计", "symbolSize": 1.0}, {"category": 0, "name": "家居产品设计", "symbolSize": 0.7272727272727273}]

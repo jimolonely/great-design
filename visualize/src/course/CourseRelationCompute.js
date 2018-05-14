@@ -1,25 +1,7 @@
 import React, { Component } from 'react';
-import { Button, Progress, List, Row, Col } from 'antd';
+import { Button, Progress, Row, Col, List } from 'antd';
 import * as net from "../utils/net";
 
-
-// const data = [
-//     {
-//         name: '计算机',
-//         code: '120',
-//         progress: 90
-//     },
-//     {
-//         name: '软件工程',
-//         code: '120',
-//         progress: 70
-//     },
-//     {
-//         name: '土木工程',
-//         code: '120',
-//         progress: 40
-//     }
-// ];
 
 class CourseRelationCompute extends Component {
 
@@ -27,7 +9,7 @@ class CourseRelationCompute extends Component {
         super(props);
         this.state = {
             isRunning: false,
-            processData: []
+            process: { time: 0.0 },
         }
         this.refresh = this.refresh.bind(this);
         this.beginCompute = this.beginCompute.bind(this);
@@ -62,7 +44,7 @@ class CourseRelationCompute extends Component {
         net.get('/course/relation-compute', function (re) {
             console.log(re.data.data);
             t.setState({
-                processData: re.data.data
+                process: re.data.data
             });
         });
     }
@@ -79,7 +61,7 @@ class CourseRelationCompute extends Component {
         }
         var t = this;
         net.post('/course/relation-compute', {
-            speciality_codes: ['0501', '0101', '0201', '0215', '0408', '0402'],
+            // speciality_codes: ['0501', '0101', '0201', '0215', '0408', '0402'],
             // speciality_codes: ['0901', '0307'],
             run: run
         }, function (re) {
@@ -96,27 +78,22 @@ class CourseRelationCompute extends Component {
                 <Button type="primary" id="btnRun" onClick={this.beginCompute}>开启计算</Button>&nbsp;
                 <Button type="primary" onClick={this.refresh}>刷新状态</Button>
                 <hr />
-                <p>进度列表</p>
-                <p>专业名称-专业代码-已用时长-计算进度</p>
+                <p>是否完成-已用时长-计算进度</p>
+                <Row>
+                    <Col span={3}>{this.state.process.finish} </Col>
+                    <Col span={4}>{this.state.process.time.toFixed(2)}秒</Col>
+                    <Col span={14}><Progress percent={this.state.process.process}
+                        format={percent => percent.toFixed(2) + "%"} /></Col>
+                </Row>
+                <p>已完成专业</p>
                 <List
-                    grid={{ gutter: 16, column: 1 }}
-                    itemLayout="horizontal"
-                    dataSource={this.state.processData}
-                    renderItem={
-                        item => (
-                            <List.Item>
-                                <div>
-                                    <Row>
-                                        <Col span={3}>{item.name} </Col>
-                                        <Col span={3}>{item.code} </Col>
-                                        <Col span={4}>{item.time.toFixed(2)}秒</Col>
-                                        <Col span={14}><Progress percent={item.progress}
-                                            format={percent => percent.toFixed(2) + "%"} /></Col>
-                                    </Row>
-                                </div>
-                            </List.Item>
-                        )
-                    }
+                    grid={{ gutter: 16, column: 8 }}
+                    dataSource={this.state.process.names}
+                    renderItem={item => (
+                        <List.Item>
+                            <b>{item.name}({item.code})</b>
+                        </List.Item>
+                    )}
                 />
             </div>
         )
