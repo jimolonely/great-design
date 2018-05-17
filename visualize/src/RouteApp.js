@@ -59,8 +59,8 @@ class RouteApp extends Component {
                 <Menu.Item key="stu-studenta"><Link to="/stu/studenta">学生个体画像</Link></Menu.Item>
                 <Menu.Item key="stu-whole-studenta"><Link to="/stu/multi-studenta">学生群体画像</Link></Menu.Item>
                 <Menu.Item key="stu-fail-predict"><Link to="/stu/fail-predict">学生挂科预测</Link></Menu.Item>
-                <Menu.Item key="stu-job-analyze"><Link to="/stu/job-analyze">就业分析</Link></Menu.Item>
-                <Menu.Item key="stu-talent"><Link to="/mark">其他</Link></Menu.Item>
+                {/* <Menu.Item key="stu-job-analyze"><Link to="/stu/job-analyze">就业分析</Link></Menu.Item>
+                <Menu.Item key="stu-talent"><Link to="/mark">其他</Link></Menu.Item> */}
               </SubMenu>
               <SubMenu title={<span><Icon type="profile" />Course</span>}>
                 <SubMenu title="课程相关性">
