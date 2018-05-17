@@ -34,6 +34,13 @@ class RouteApp extends Component {
     current: 'home',
   }
 
+  componentDidMount() {
+    // if (!login) {
+    //   login = true;
+    //   location.href = "/login";
+    // }
+  }
+
   handleClick = (e) => {
     console.log('click ', e);
     this.setState({
