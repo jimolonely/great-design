@@ -196,7 +196,7 @@ class Studenta(Resource):
               "individual_love,email,school_area,enrollment_mark from " \
               "view_student_full_info where student_id='%s'" % (stu_id)
         stu = load_data_by_sql(sql)
-        if len(stu) == 0:
+        if stu is None or len(stu) == 0:
             return Result(ok=False, msg="查无此人")
         stu = stu[0]
 
