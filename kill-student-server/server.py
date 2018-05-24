@@ -6,7 +6,7 @@ from api.course import Relation, Difficulty, CourseTeacherCompare, TeacherCourse
     RelationCompute, GetThreadState, \
     ShowCourseRelation
 from api.mark import CollegeMarkInitData, CollegeMark, SpecialityCluster
-from api.student import StuToTeacherAdviceWordCloud, StuFailPredict, Studenta
+from api.student import StuToTeacherAdviceWordCloud, StuFailPredict, Studenta, MultiStudenta
 from api.teacher import TeacherCourseAdviceWordCloud, TeacherAllAdviceWordCloud
 
 # from api.common import LoginFail
@@ -28,6 +28,7 @@ CORS(app)
 api.add_resource(StuToTeacherAdviceWordCloud, '/fun/<stuId>')
 api.add_resource(StuFailPredict, '/stu/get-undo-course/<stu_id>', '/stu/fail-predict')
 api.add_resource(Studenta, '/stu/studenta/<stu_id>')
+api.add_resource(MultiStudenta, '/stu/multi-studenta')
 
 api.add_resource(TeacherCourseAdviceWordCloud, '/teacher/wc/<teacher_name>/<course_name>')
 api.add_resource(TeacherAllAdviceWordCloud, '/teacher/wc/<teacher_name>')

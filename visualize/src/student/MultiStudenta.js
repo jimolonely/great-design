@@ -9,9 +9,9 @@ import {
     , LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip
 } from 'recharts';
 import ReactEcharts from 'echarts-for-react';
-// import * as net from "../utils/net";
-// import './Studenta.css';
+import * as net from "../utils/net";
 
+const Option = Select.Option;
 
 class MultiStudenta extends Component {
 
@@ -38,6 +38,20 @@ class MultiStudenta extends Component {
             ],
         }
         this.getPieOption = this.getPieOption.bind(this);
+    }
+
+    componentWillMount() {
+        if (this.state.colleges.length === 0) {
+            var t = this;
+            net.get("/mark/get_meta_data", function (re) {
+                console.log(re.data)
+                t.setState({
+                    colleges: re.data.data.colleges.map(c => <Option key={c} value={c}>{c}</Option>),
+                    grades: re.data.data.grades.map(c => <Option key={c} value={c}>{c}</Option>),
+                    specialities: re.data.data.specialities.map(c => <Option key={c} value={c}>{c}</Option>)
+                })
+            })
+        }
     }
 
     getPieOption(title, data) {

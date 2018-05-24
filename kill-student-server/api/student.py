@@ -1,3 +1,4 @@
+import fnmatch
 from datetime import datetime
 
 import numpy as np
@@ -8,9 +9,11 @@ from sklearn.tree import DecisionTreeClassifier
 
 from util.data import load_data_by_uri, load_pandas_df, load_data_by_sql
 from util.dto import Result
-from util.useful import txt_to_word_cloud_imgstr
-
+from util.useful import txt_to_word_cloud_imgstr, load_dumped_file
+from util.config import TEMP_COLLEGE_MARK_FILE_PATH, TEMP_SPECIALITY_MARK_FILE_PATH
 from wordcloud import WordCloud
+
+import os
 
 
 class StuToTeacherAdviceWordCloud(Resource):
@@ -265,3 +268,34 @@ class Studenta(Resource):
         d['fullMark'] = 100
         r_mark.append(d)
         return r_mark
+
+
+class MultiStudenta(Resource):
+    def post(self):
+        args = request.form
+        college_code = args.get('college_code', None)
+        speciality_code = args.get('speciality_code', None)
+        grade = args.get('grade', None)
+        if college_code is not None:
+            pass
+        elif speciality_code is not None:
+            pass
+        else:
+            pass
+
+    def cal_college_studenta(self, college_code, grade):
+        sex = [{'value': 0, 'name': '男'}, {'value': 0, 'name': '女'}]
+        province = []
+        constellation = []
+        if grade is not None:
+            pass
+        else:
+            cfs = os.listdir(TEMP_COLLEGE_MARK_FILE_PATH)
+            cf_select = fnmatch.filter(cfs, college_code + "*")
+            d_p = dict()
+            d_c = dict()
+            for name in cf_select:
+                d = load_dumped_file(os.path.join(TEMP_COLLEGE_MARK_FILE_PATH, name))
+                sex[0]['value'] = d['stuNum']['male']
+                sex[1]['value'] = d['stuNum']['female']
+                
