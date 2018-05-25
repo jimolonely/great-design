@@ -10,6 +10,7 @@ import {
 } from 'recharts';
 import ReactEcharts from 'echarts-for-react';
 import * as net from "../utils/net";
+import { getRandomColor } from '../utils/useful';
 
 const Option = Select.Option;
 
@@ -40,7 +41,8 @@ class MultiStudenta extends Component {
             gradeValue: '',
             specialityValue: '',
             apply: {},
-            course: ''
+            course: '',
+            labels: [],
         }
         this.getPieOption = this.getPieOption.bind(this);
         this.onSearch = this.onSearch.bind(this);
@@ -110,7 +112,8 @@ class MultiStudenta extends Component {
                 province: re.data.data.province,
                 constellation: re.data.data.constellation,
                 apply: re.data.data.apply,
-                course: re.data.data.course
+                course: re.data.data.course,
+                labels: re.data.data.labels.map(b => <Tag key={b} color={getRandomColor()}><b>{b}</b></Tag>)
             })
         })
     }
@@ -187,15 +190,7 @@ class MultiStudenta extends Component {
                     <Row>
                         <Col >
                             <p>群体标签</p>
-                            <Tag color="magenta">好学生</Tag>
-                            <Tag color="red">游戏迷</Tag>
-                            <Tag color="volcano">高智商</Tag>
-                            <Tag color="orange">低情商</Tag>
-                            <Tag color="gold">长得帅</Tag>
-                            <Tag color="lime">无节操</Tag>
-                            <Tag color="green">班委</Tag>
-                            <Tag color="cyan">运动爱好者</Tag>
-                            <Tag color="blue">bulabula</Tag>
+                            {this.state.labels}
                         </Col>
                     </Row>
                 </Card>
@@ -207,8 +202,8 @@ class MultiStudenta extends Component {
                         </Card>
                     </Col>
                     <Col xs={24} sm={24} md={8} lg={8} xl={8}>
-                        <Card title="实践-专业" bordered={false}>
-                            <img src={"data:image/jpeg;base64," + this.state.apply.speciality_name} alt="img" />
+                        <Card title="实践-奖励名称" bordered={false}>
+                            <img src={"data:image/jpeg;base64," + this.state.apply.reason_name} alt="img" />
                         </Card>
                     </Col>
                     <Col xs={24} sm={24} md={8} lg={8} xl={8}>
@@ -220,11 +215,6 @@ class MultiStudenta extends Component {
                 <br />
                 <Row>
                     <Col xs={24} sm={24} md={8} lg={8} xl={8}>
-                        <Card title="实践-奖励名称" bordered={false}>
-                            <img src={"data:image/jpeg;base64," + this.state.apply.reason_name} alt="img" />
-                        </Card>
-                    </Col>
-                    <Col xs={24} sm={24} md={8} lg={8} xl={8}>
                         <Card title="实践-奖励级别" bordered={false}>
                             <img src={"data:image/jpeg;base64," + this.state.apply.reason_level} alt="img" />
                         </Card>
@@ -232,6 +222,11 @@ class MultiStudenta extends Component {
                     <Col xs={24} sm={24} md={8} lg={8} xl={8}>
                         <Card title="选课概况" bordered={false}>
                             <img src={"data:image/jpeg;base64," + this.state.course} alt="img" />
+                        </Card>
+                    </Col>
+                    <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+                        <Card title="实践-专业" bordered={false}>
+                            <img src={"data:image/jpeg;base64," + this.state.apply.speciality_name} alt="img" />
                         </Card>
                     </Col>
                 </Row>

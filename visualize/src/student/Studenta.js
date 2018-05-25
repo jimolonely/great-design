@@ -10,6 +10,7 @@ import {
 } from 'recharts';
 import * as net from "../utils/net";
 import './Studenta.css';
+import { getRandomColor } from '../utils/useful';
 
 const data = [
     { subject: '排名', A: 80, B: 110, fullMark: 100 },
@@ -46,6 +47,10 @@ class Studenta extends Component {
             radarData: [],
             markList: [],
             courseCondition: {},
+            apply: [],
+            labels: [],
+            score: 0,
+            process: 0,
         }
         this.onChange = this.onChange.bind(this);
         this.getStudenta = this.getStudenta.bind(this);
@@ -67,6 +72,10 @@ class Studenta extends Component {
                     radarData: re.data.data.radarData,
                     markList: re.data.data.markList,
                     courseCondition: re.data.data.courseCondition,
+                    apply: re.data.data.apply.map(a => <p key={a}>{a}</p>),
+                    labels: re.data.data.labels.map(b => <Tag key={b} color={getRandomColor()}><b>{b}</b></Tag>),
+                    score: re.data.data.score,
+                    process: re.data.data.process
                 })
             })
         }
@@ -80,7 +89,8 @@ class Studenta extends Component {
                 <br />
                 <Row type="flex" justify='center'>
                     <Col xs={24} sm={24} md={5} lg={5} xl={4}>
-                        <img src={require("../resources/meme.jpg")}
+                        {/* <img src={require("../resources/meme.jpg")} */}
+                        <img src={"data:image/jpeg;base64," + this.state.basicInfo.photo}
                             style={{ width: 160, height: 200 }} />
                     </Col>
                     <Col xs={24} sm={24} md={5} lg={5} xl={5}>
@@ -109,26 +119,18 @@ class Studenta extends Component {
                     </Col>
                     <Col xs={24} sm={24} md={8} lg={8} xl={9}>
                         <p>学生标签:</p>
-                        <Tag color="magenta">好学生</Tag>
-                        <Tag color="red">游戏迷</Tag>
-                        <Tag color="volcano">高智商</Tag>
-                        <Tag color="orange">低情商</Tag>
-                        <Tag color="gold">长得帅</Tag>
-                        <Tag color="lime">无节操</Tag>
-                        <Tag color="green">班委</Tag>
-                        <Tag color="cyan">运动爱好者</Tag>
-                        <Tag color="blue">bulabula</Tag>
+                        {this.state.labels}
                         <br />
                         <br />
                         <span>学生综合评分:</span>
-                        <div className="circle">99</div>
+                        <div className="circle">{this.state.score}</div>
                     </Col>
                 </Row>
                 <br />
                 <Row>
                     <Col>
                         <p>达到毕业资格百分比:</p>
-                        <Progress percent={75} />
+                        <Progress percent={this.state.process} format={percent => percent.toFixed(2) + "%"} />
                     </Col>
                 </Row>
                 <br />
@@ -177,12 +179,12 @@ class Studenta extends Component {
                     </Col>
                     <Col xs={24} sm={24} md={8} lg={8} xl={8}>
                         <Card title="实践情况" bordered={false}>
-                            <p>Card content</p>
+                            {this.state.apply}
                         </Card>
                     </Col>
                     <Col xs={24} sm={24} md={8} lg={8} xl={8}>
                         <Card title="就业情况" bordered={false}>
-                            <p>再等等吧,学生还未就业!</p>
+                            <p>暂时没有学生就业信息!</p>
                         </Card>
                     </Col>
                 </Row>

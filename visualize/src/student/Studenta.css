@@ -3,10 +3,10 @@
     height: 80px;
     border-radius: 30%;
     font-size: 50px;
-    color: #fff;
+    color: rgb(40, 138, 204);
     line-height: 80px;
     text-align: center;
-    background: #28b7e2;
+    background: #fff;
     -webkit-border-radius: 30%;
     -moz-border-radius: 30%;
 }

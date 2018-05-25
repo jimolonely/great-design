@@ -1,4 +1,5 @@
 import fnmatch
+import os
 from datetime import datetime
 
 import numpy as np
@@ -6,14 +7,14 @@ from flask_restful import Resource, request
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
-
-from util.data import load_data_by_uri, load_pandas_df, load_data_by_sql
-from util.dto import Result
-from util.useful import txt_to_word_cloud_imgstr, load_dumped_file, txt_to_word_cloud_imgstr
-from util.config import TEMP_COLLEGE_MARK_FILE_PATH, TEMP_SPECIALITY_MARK_FILE_PATH
 from wordcloud import WordCloud
 
-import os
+from util.config import TEMP_COLLEGE_MARK_FILE_PATH, TEMP_SPECIALITY_MARK_FILE_PATH
+from util.data import load_data_by_uri, load_pandas_df, load_data_by_sql
+from util.dto import Result
+from util.useful import load_dumped_file, txt_to_word_cloud_imgstr, month_delta
+
+from datetime import date
 
 
 class StuToTeacherAdviceWordCloud(Resource):
@@ -194,7 +195,7 @@ class StuFailPredict(Resource):
 class Studenta(Resource):
     def get(self, stu_id):
         # 查询基本信息
-        sql = "select student_id,name,sex,grade,college_name,speciality_name,nation_name,CONVERT(VARCHAR,birthday,23) " \
+        sql = "select photo,student_id,name,sex,grade,college_name,speciality_name,nation_name,CONVERT(VARCHAR,birthday,23) " \
               "as birthday,state_type,party,family_address,student_mobilephone, graduation_school,rewards_punish,rid_region," \
               "individual_love,email,school_area,enrollment_mark from " \
               "view_student_full_info where student_id='%s'" % (stu_id)
@@ -222,12 +223,36 @@ class Studenta(Resource):
         pm = df_mark.pmark.values
         mark_list = [{'course': cn[i], 'mark': pm[i]} for i in range(len(cn))]
 
+        # 查奖励
+        sql = "select student_name,college_name,speciality_code,speciality_name,grade,reason_type,reason_name,reason_level  \
+         ,apply_score from view_my_score_add_apply where student_id='%s'" % stu_id
+        df = load_pandas_df(sql)
+        wd = WordCloud(font_path="/home/jimo/workspace/Git/great-design/kill-student-server/resource/SimHei.ttf")
+        if df.empty:
+            apply = ['该生没有奖励']
+            labels = list(stu.values())[:10]
+            score = 0.9 * marks.get('avg', 0)
+        else:
+            df['apply'] = df['reason_name'] + "-" + df['reason_type'] + "-" + df['reason_level']
+            apply = list(df['apply'].values)
+            labels = list(wd.process_text(",".join(df['apply'].values) + stu['individual_love']).keys())
+            score = df.apply_score.sum() + 0.9 * marks.get('avg', 0)
+
+        if stu['state_type'] == '在读':
+            process = (month_delta(date(int(stu['grade']), 9, 1)) / 46) * 100
+        else:
+            process = 100
+
         re = dict()
         re['basicInfo'] = stu
         re['mark'] = marks
+        re['process'] = process
         re['radarData'] = r_mark
         re['markList'] = mark_list
         re['courseCondition'] = self.course_judge(df_mark)
+        re['apply'] = apply
+        re['labels'] = labels
+        re['score'] = score
         return Result(re)
 
     def course_judge(self, df_mark):
@@ -299,7 +324,7 @@ class MultiStudenta(Resource):
         re['sex'] = sex
         re['province'] = province
         re['constellation'] = constellation
-        re['apply'] = self.cal_stu_apply(college_code, grade, 0)
+        re['apply'], re['labels'] = self.cal_stu_apply(college_code, grade, 0)
         re['course'] = self.cal_stu_course(college_code, grade, 0)
         return re
 
@@ -309,7 +334,7 @@ class MultiStudenta(Resource):
         re['sex'] = sex
         re['province'] = province
         re['constellation'] = constellation
-        re['apply'] = self.cal_stu_apply(speciality_code, grade, 1)
+        re['apply'], re['labels'] = self.cal_stu_apply(speciality_code, grade, 1)
         re['course'] = self.cal_stu_course(speciality_code, grade, 1)
         return re
 
@@ -358,12 +383,17 @@ class MultiStudenta(Resource):
         if df.empty:
             raise Exception("无数据")
         d = dict()
-        d['student_name'] = txt_to_word_cloud_imgstr(",".join(df['student_name'].values), 400, 300)
-        # d['speciality_name'] = txt_to_word_cloud_imgstr(",".join(df['speciality_name'].values), 400, 300)
+        stu = ",".join(df['student_name'].values)
+        d['student_name'] = txt_to_word_cloud_imgstr(stu, 400, 300)
+        if type == 0:
+            d['speciality_name'] = txt_to_word_cloud_imgstr(",".join(df['speciality_name'].values), 400, 300)
         d['reason_type'] = txt_to_word_cloud_imgstr(",".join(df['reason_type'].values), 400, 300)
-        d['reason_name'] = txt_to_word_cloud_imgstr(",".join(df['reason_name'].values), 400, 300)
+        name = ",".join(df['reason_name'].values)
+        d['reason_name'] = txt_to_word_cloud_imgstr(name, 400, 300)
         d['reason_level'] = txt_to_word_cloud_imgstr(",".join(df['reason_level'].values), 400, 300)
-        return d
+        wd = WordCloud(font_path="/home/jimo/workspace/Git/great-design/kill-student-server/resource/SimHei.ttf")
+        labels = [k[0] for k in sorted(wd.process_text(name + "," + stu).items(), key=lambda t: t[1], reverse=True)]
+        return d, labels[:10]
 
     def cal_stu_course(self, code, grade, type):
         sql = None
