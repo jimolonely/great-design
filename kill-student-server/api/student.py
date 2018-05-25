@@ -9,7 +9,7 @@ from sklearn.tree import DecisionTreeClassifier
 
 from util.data import load_data_by_uri, load_pandas_df, load_data_by_sql
 from util.dto import Result
-from util.useful import txt_to_word_cloud_imgstr, load_dumped_file
+from util.useful import txt_to_word_cloud_imgstr, load_dumped_file, txt_to_word_cloud_imgstr
 from util.config import TEMP_COLLEGE_MARK_FILE_PATH, TEMP_SPECIALITY_MARK_FILE_PATH
 from wordcloud import WordCloud
 
@@ -276,26 +276,103 @@ class MultiStudenta(Resource):
         college_code = args.get('college_code', None)
         speciality_code = args.get('speciality_code', None)
         grade = args.get('grade', None)
-        if college_code is not None:
-            pass
-        elif speciality_code is not None:
-            pass
+        print(args)
+        # try:
+        #     if college_code != '':
+        #         return Result(self.cal_college_studenta(college_code, grade))
+        #     elif speciality_code != '':
+        #         return Result(self.cal_speciality_studenta(speciality_code, grade))
+        #     else:
+        #         return Result(ok=False, msg="参数错误")
+        # except Exception as e:
+        #     return Result(ok=False, msg=str(e))
+        if college_code != '':
+            return Result(self.cal_college_studenta(college_code, grade))
+        elif speciality_code != '':
+            return Result(self.cal_speciality_studenta(speciality_code, grade))
         else:
-            pass
+            return Result(ok=False, msg="参数错误")
 
     def cal_college_studenta(self, college_code, grade):
+        re = dict()
+        sex, province, constellation = self.cal_stu_counts(college_code, grade, TEMP_COLLEGE_MARK_FILE_PATH)
+        re['sex'] = sex
+        re['province'] = province
+        re['constellation'] = constellation
+        re['apply'] = self.cal_stu_apply(college_code, grade, 0)
+        re['course'] = self.cal_stu_course(college_code, grade, 0)
+        return re
+
+    def cal_speciality_studenta(self, speciality_code, grade):
+        re = dict()
+        sex, province, constellation = self.cal_stu_counts(speciality_code, grade, TEMP_SPECIALITY_MARK_FILE_PATH)
+        re['sex'] = sex
+        re['province'] = province
+        re['constellation'] = constellation
+        re['apply'] = self.cal_stu_apply(speciality_code, grade, 1)
+        re['course'] = self.cal_stu_course(speciality_code, grade, 1)
+        return re
+
+    def cal_stu_counts(self, code, grade, path):
+        '''
+        计算性别,星座,地区的人数分布
+        :param code:
+        :param grade:
+        :param path:
+        :return:
+        '''
+        print(grade)
         sex = [{'value': 0, 'name': '男'}, {'value': 0, 'name': '女'}]
-        province = []
-        constellation = []
-        if grade is not None:
-            pass
+        if grade != '':
+            file_name = code + "_" + grade + "*"
         else:
-            cfs = os.listdir(TEMP_COLLEGE_MARK_FILE_PATH)
-            cf_select = fnmatch.filter(cfs, college_code + "*")
-            d_p = dict()
-            d_c = dict()
-            for name in cf_select:
-                d = load_dumped_file(os.path.join(TEMP_COLLEGE_MARK_FILE_PATH, name))
-                sex[0]['value'] = d['stuNum']['male']
-                sex[1]['value'] = d['stuNum']['female']
-                
+            file_name = code + "*"
+        cfs = os.listdir(path)
+        cf_select = fnmatch.filter(cfs, file_name)
+        d_p = dict()
+        d_c = dict()
+        for name in cf_select:
+            d = load_dumped_file(os.path.join(path, name))
+            sex[0]['value'] = d['stuNum']['male']
+            sex[1]['value'] = d['stuNum']['female']
+            for c in d['constellation']['avgMark']:
+                d_c[c['constellation']] = d_c.get(c['constellation'], 0) + c['count']
+            for p in d['province']['avgMark']:
+                d_p[p['province']] = d_p.get(p['province'], 0) + p['count']
+        province = [{'value': v, 'name': k} for k, v in d_p.items()]
+        constellation = [{'value': v, 'name': k} for k, v in d_c.items()]
+        return sex, province, constellation
+
+    def cal_stu_apply(self, code, grade, type):
+        sql = None
+        if type == 0:
+            sql = "select student_name,college_name,speciality_code,speciality_name,grade,reason_type,reason_name,reason_level  \
+                         from view_my_score_add_apply where college_code='%s'" % code
+        elif type == 1:
+            sql = "select student_name,college_name,speciality_code,speciality_name,grade,reason_type,reason_name,reason_level  \
+                         from view_my_score_add_apply where speciality_code='%s'" % code
+        if grade != '':
+            sql = sql + " and grade='%s'" % grade
+        print(sql)
+        df = load_pandas_df(sql)
+        if df.empty:
+            raise Exception("无数据")
+        d = dict()
+        d['student_name'] = txt_to_word_cloud_imgstr(",".join(df['student_name'].values), 400, 300)
+        # d['speciality_name'] = txt_to_word_cloud_imgstr(",".join(df['speciality_name'].values), 400, 300)
+        d['reason_type'] = txt_to_word_cloud_imgstr(",".join(df['reason_type'].values), 400, 300)
+        d['reason_name'] = txt_to_word_cloud_imgstr(",".join(df['reason_name'].values), 400, 300)
+        d['reason_level'] = txt_to_word_cloud_imgstr(",".join(df['reason_level'].values), 400, 300)
+        return d
+
+    def cal_stu_course(self, code, grade, type):
+        sql = None
+        if type == 0:
+            sql = " select course_name from view_stu_course_mark where college_code='%s' and course_type='选'" % code
+        elif type == 1:
+            sql = " select course_name from view_stu_course_mark where speciality_code='%s' and course_type='选'" % code
+        if grade != '':
+            sql = sql + " and grade='%s'" % grade
+        # 群体选课偏好
+        df = load_pandas_df(sql)
+        return txt_to_word_cloud_imgstr(",".join(df['course_name'].values), 400, 300)

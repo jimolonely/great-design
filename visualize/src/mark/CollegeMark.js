@@ -47,9 +47,9 @@ class CollegeMark extends Component {
             net.get("/mark/get_meta_data", function (re) {
                 console.log(re.data)
                 t.setState({
-                    colleges: re.data.data.colleges.map(c => <Option key={c} value={c}>{c}</Option>),
+                    colleges: re.data.data.colleges.map(c => <Option key={c.college_code} value={c.college_code}>{c.college_name}({c.college_code})</Option>),
                     grades: re.data.data.grades.map(c => <Option key={c} value={c}>{c}</Option>),
-                    speciality: re.data.data.specialities.map(c => <Option key={c} value={c}>{c}</Option>)
+                    speciality: re.data.data.specialities.map(c => <Option key={c.speciality_code} value={c.speciality_code}>{c.speciality_name}({c.speciality_code})</Option>)
                 })
             })
         }
@@ -108,7 +108,7 @@ class CollegeMark extends Component {
                     placeholder="请选择学院名称或代码"
                     optionFilterProp="children"
                     onSelect={this.getCollege}
-                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}>
+                    filterOption={(input, option) => option.props.children.toString().toLowerCase().indexOf(input.toLowerCase()) >= 0}>
                     {this.state.colleges}
                 </Select>
                 &nbsp;
@@ -118,7 +118,7 @@ class CollegeMark extends Component {
                     placeholder="请选择专业名称或代码"
                     optionFilterProp="children"
                     onSelect={this.getSpeciality}
-                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}>
+                    filterOption={(input, option) => option.props.children.toString().toLowerCase().indexOf(input.toLowerCase()) >= 0}>
                     {this.state.speciality}
                 </Select>
                 &nbsp;

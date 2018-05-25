@@ -292,12 +292,12 @@ def test_speciality():
 # =====================DEBUG END======================#
 
 def load_meta_data():
-    college = load_dumped_file(os.path.join(TEMP_META_MARK_FILE_PATH, 'college.txt'))
+    colleges = load_dumped_file(os.path.join(TEMP_META_MARK_FILE_PATH, 'college.txt'))
     grade = load_dumped_file(os.path.join(TEMP_META_MARK_FILE_PATH, 'grade.txt'))
     speciality = load_dumped_file(os.path.join(TEMP_META_MARK_FILE_PATH, 'speciality.txt'))
-    colleges = [c['college_name'] + '_' + c['college_code'] for c in college]
+    # colleges = [c['college_name'] + '_' + c['college_code'] for c in college]
     grades = [g['grade'] for g in grade]
-    specialities = [s['speciality_name'] + "_" + s['speciality_code'] for s in speciality if
+    specialities = [s for s in speciality if
                     s['speciality_name'] is not None and
                     s['speciality_name'] != '' and s['speciality_code'] is not None and s['speciality_code'] != '']
     return colleges, grades, specialities
@@ -381,5 +381,3 @@ def load_college_marks(college_code, grade):
 
     re['nationNameFailStuNum'] = back_data(c, 'nation_name', 'failStuNum')
     return re
-
-

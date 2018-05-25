@@ -21,17 +21,19 @@ class CollegeMarkInitData(Resource):
 
 
 class CollegeMark(Resource):
-    def get(self, college, grade):
+    def get(self, college, grade=''):
         d = None
         if college == '' and grade == '':
             pass
         elif college == '' and grade != '':
             pass
         elif grade == '' and grade != '':
-            code = college[college.find("_") + 1:]
+            # code = college[college.find("_") + 1:]
+            code = college
             pass
         else:
-            code = college[college.find("_") + 1:]
+            # code = college[college.find("_") + 1:]
+            code = college
             d = load_college_marks(code, grade)
         return Result(ok=False, msg="无数据") if d is None else Result(d)
 
@@ -48,10 +50,10 @@ class SpecialityCluster(Resource):
         self.grade = grade
         self.speciality_code = speciality_code[speciality_code.find("_") + 1:]
         self.n_clusters = int(n_clusters)
-        # try:
-        # except Exception as e:
-        #     return Result(ok=False, msg=str(e))
-        return Result(self.cluster())
+        try:
+            return Result(self.cluster())
+        except Exception as e:
+            return Result(ok=False, msg=str(e))
 
     def load_course_code(self):
         '''加载专业相关的课程代码'''

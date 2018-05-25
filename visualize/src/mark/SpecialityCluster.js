@@ -39,7 +39,7 @@ class SpecialityCluster extends Component {
             net.get("/mark/get_meta_data", function (re) {
                 console.log(re.data)
                 t.setState({
-                    specialities: re.data.data.specialities.map(c => <Option key={c} value={c}>{c}</Option>),
+                    specialities: re.data.data.specialities.map(c => <Option key={c.speciality_code} value={c.speciality_code}>{c.speciality_name}({c.speciality_code})</Option>),
                     grades: re.data.data.grades.map(c => <Option key={c} value={c}>{c}</Option>)
                 })
             })
@@ -68,9 +68,9 @@ class SpecialityCluster extends Component {
         } else {
             console.log(this.state.nClusters)
             var t = this;
-            var spec = this.state.specialityValue.substr(this.state.specialityValue.lastIndexOf('_') + 1)
+            // var spec = this.state.specialityValue.substr(this.state.specialityValue.lastIndexOf('_') + 1)
             net.get("/mark/speciality_cluster/" + this.state.gradeValue + "/" +
-                spec + "/" + this.state.nClusters,
+                this.state.specialityValue + "/" + this.state.nClusters,
                 function (re) {
                     var d = re.data.data;
                     var g = [];
@@ -112,7 +112,7 @@ class SpecialityCluster extends Component {
                     placeholder="请选择专业名称或代码"
                     optionFilterProp="children"
                     onSelect={this.getSpeciality}
-                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}>
+                    filterOption={(input, option) => option.props.children.toString().toLowerCase().indexOf(input.toLowerCase()) >= 0}>
                     {this.state.specialities}
                 </Select>
                 &nbsp;
