@@ -3,7 +3,28 @@ import qs from 'qs'; //对参数转化
 import './loading.css';
 // axios.defaults.baseURL = 'http://192.168.1.146:8082';
 
+export function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    var expires = "expires=" + d.toGMTString();
+    document.cookie = cname + "=" + cvalue + "; " + expires;
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i].trim();
+        if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
+    }
+    return "";
+}
+
 function loadShow() {
+    //如果加载时没有cookie或过时了,跳转到登录页
+    if (getCookie("user") === "") {
+        window.location.href = "/login"
+    }
     var loadDiv = document.createElement("div");
     loadDiv.className = "overlay-loader";
     loadDiv.id = "my-load";

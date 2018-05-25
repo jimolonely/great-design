@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-    Form, Icon, Input, Button, Row, Col
+    Form, Icon, Input, Button, Row, Col, message
 } from 'antd';
 // import {
 //     Radar, RadarChart, PolarGrid, Legend,
@@ -9,6 +9,7 @@ import {
 // import * as net from "../utils/net";
 import './Login.css';
 import App from '../App';
+import * as net from "../utils/net";
 
 const FormItem = Form.Item;
 
@@ -23,7 +24,12 @@ class Login extends Component {
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 console.log('Received values of form: ', values);
-                window.location.href = "/";
+                if (values.userName === "jimo" && values.password === "1234") {
+                    net.setCookie("user", values, 1);
+                    window.location.href = "/";
+                } else {
+                    message.error("用户名或密码不正确");
+                }
             }
         });
     }
