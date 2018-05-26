@@ -23,6 +23,7 @@ class Login extends Component {
         e.preventDefault();
         this.props.form.validateFields((err, values) => {
             if (!err) {
+                /**此登录功能由于太简单,所以暂时没实现 */
                 console.log('Received values of form: ', values);
                 if (values.userName === "jimo" && values.password === "1234") {
                     net.setCookie("user", values, 1);
