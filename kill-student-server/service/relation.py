@@ -513,6 +513,7 @@ class CalRelation(threading.Thread):
             d['category'] = 0
             d['name'] = k
             d['symbolSize'] = p
+            d['itemStyle'] = {'color': '#e2e2e2'}
             nodes.append(d)
 
         # 将结果写入文件

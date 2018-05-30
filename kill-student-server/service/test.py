@@ -1,6 +1,10 @@
 import threading
 import time
 
+from util.useful import load_dumped_file, dump_obj
+from util.config import TEMP_RELATION_FILE_PATH
+import os
+
 exitFlag = 0
 
 
@@ -34,12 +38,30 @@ class myThread(threading.Thread):  # 继承父类threading.Thread
         self.data[threadName] = counter
 
 
-# 创建新线程
-thread1 = myThread(1, "Thread-1", 1)
-thread2 = myThread(2, "Thread-2", 1)
+# # 创建新线程
+# thread1 = myThread(1, "Thread-1", 1)
+# thread2 = myThread(2, "Thread-2", 1)
+#
+# # 开启线程
+# thread1.start()
+# thread2.start()
+#
+# print("Exiting Main Thread")
 
-# 开启线程
-thread1.start()
-thread2.start()
+###########debug relation graph color############
 
-print("Exiting Main Thread")
+# path = os.path.join(TEMP_RELATION_FILE_PATH, "0402_2014_nodes.txt")
+# nodes = load_dumped_file(path)
+# re = []
+# for n in nodes:
+#     n['label'] = {'color': '#000'}
+#     re.append(n)
+# dump_obj(path, re)
+
+path = os.path.join(TEMP_RELATION_FILE_PATH, "0402_2014_links.txt")
+nodes = load_dumped_file(path)
+re = []
+for n in nodes:
+    n['lineStyle'] = {'color': '#000'}
+    re.append(n)
+dump_obj(path, re)

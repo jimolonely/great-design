@@ -24,6 +24,8 @@ class StuToTeacherAdviceWordCloud(Resource):
 
     def get(self, stuId):
         text = load_data_by_uri("/fun/getStuAdviceToTeacher", param={'stuId': stuId})
+        if text is None or text == '':
+            return Result(ok=False, msg="查无此人")
         return Result(data=txt_to_word_cloud_imgstr(text))
 
 

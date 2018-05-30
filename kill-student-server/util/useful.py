@@ -16,7 +16,7 @@ def txt_to_word_cloud_imgstr(txt, width=600, height=400):
     '''
     wd = WordCloud(font_path="/home/jimo/workspace/Git/great-design/kill-student-server/resource/SimHei.ttf",
                    max_font_size=60, \
-                   width=width, height=height).generate(txt)
+                   width=width, height=height, background_color='white').generate(txt)
     b = BytesIO()
     wd.to_image().save(b, "PNG")
     img_str = base64.b64encode(b.getvalue())
