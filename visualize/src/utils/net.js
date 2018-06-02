@@ -1,7 +1,9 @@
 import axios from 'axios';
 import qs from 'qs'; //对参数转化
 import './loading.css';
-// axios.defaults.baseURL = 'http://192.168.1.146:8082';
+// axios.defaults.baseURL = baseURL;
+
+const baseURL = baseURL;
 
 export function setCookie(cname, cvalue, exdays) {
     var d = new Date();
@@ -51,7 +53,7 @@ function loadHide() {
 
 export function get(url, callback, errorHandler = null) {
     loadShow();
-    axios.get('http://192.168.1.146:8082' + url
+    axios.get(baseURL + url
     ).then(function (response) {
         loadHide();
         if (response.data.ok === false) {
@@ -73,7 +75,7 @@ export function get(url, callback, errorHandler = null) {
 
 export function post(url, jsonParam, callback, errorHandler = null) {
     loadShow();
-    axios.post('http://192.168.1.146:8082' + url,
+    axios.post(baseURL + url,
         qs.stringify(jsonParam)
     ).then(function (response) {
         loadHide();

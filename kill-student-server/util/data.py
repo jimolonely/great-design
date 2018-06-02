@@ -1,8 +1,9 @@
 import requests
 import pandas as pd
+from util.config import DATA_SERVER_BASE_URL
 
 # base_url = 'http://192.168.1.146:8081'
-base_url = 'http://localhost:8081'
+base_url = DATA_SERVER_BASE_URL
 
 sql_url = base_url + '/test/data'
 

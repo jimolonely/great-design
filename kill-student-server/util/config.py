@@ -9,6 +9,8 @@ TEMP_SPECIALITY_MARK_FILE_PATH = '/home/jimo/workspace/Git/great-design/mark/spe
 TEMP_CLASS_MARK_FILE_PATH = '/home/jimo/workspace/Git/great-design/mark/class/'
 TEMP_META_MARK_FILE_PATH = '/home/jimo/workspace/Git/great-design/mark/meta/'
 
+DATA_SERVER_BASE_URL = 'http://localhost:8081'
+
 
 class MarkMetaType(Enum):
     COLLEGE = 0
